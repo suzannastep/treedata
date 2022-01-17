@@ -7,4 +7,5 @@ editor_options:
   chunk_output_type: console
 ---
 
-Describe your project.
+The goal of this project is to study algorithms for data with underlying
+tree structure.
