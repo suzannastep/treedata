@@ -128,7 +128,7 @@ plot_ebnm_results("ContinuousTrees/tree1","div")
 * Stopping point-- it doesn't stop adding factors when it shouldn't, unfortunately. It does with node data, but not trajectory data
     * maybe some sort of spatial way of determining stopping? Like is this divergence you drawing a line in the sand, or is the split point close enough to the ancestral point that it's a reasonable split
 * What happens with non-tree-shaped data?
-    * If you put in non-tree-shaped data, you should get
+    * If you put in non-tree-shaped data, you shouldn't detect structure that doesn't exist.
 * This factorization doesn't quite give the true drift or divergence factorization because it gives continuous values instead of binary ones. Points that are more "specialized" have larger loadings than those that are less specialized. This doesn't quite match up with our definition of the divergence factorization.
 * This works well with node datasets up to about 3 levels of splits. It breaks down a bit for 4 levels. This is likely due to the signal/noise ratio
 * When and how should you backfit? Or should we stick with a simple greedy approach?
