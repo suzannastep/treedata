@@ -1,0 +1,281 @@
+---
+title: "Testing Trajectory Inference Methods from Dynverse"
+author: "Sue Parkinson"
+date: "2022-01-17"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Introduction
+This analysis will use several mehods from the Dynverse package to detect tree structure in some synthetic datasets.
+
+I first import some libraries, including `dyno`. The `dyno` package is part of the `dynverse` collection of R packages to do trajectory inference. Many popular methods are included in `dynverse` in convenient wrappers that unify the input/output formats. (Note: `dynverse` does require docker or singularity in order to run. It also requires the `hdf5r` package to be installed.) I also import the `ebnm` in order to compare to functions from Jason's thesis.
+
+```{r,message=FALSE}
+library(dplyr)
+library(flashier)
+library(tidyverse)
+library(ebnm)
+library(dyno)
+```
+
+The methods I will use from `drift_div_factorizations.R` are `div_cov_fit` and `div_fit`, which compute the divergence factorization from either the data or the covariance matrix.
+
+## The Data
+The data I will use for this testing uses the brownian motion model to generate data continuously along the branches of a tree. For details, see `code/continuous_tree_datagen.py`. The data is saved in the folder `data/ContinuousTrees`. The following functions parse the raw data into a format that can be read by `dynverse`.
+```{r}
+form_tree_from_file <- function(filename){
+  tree <- vector(mode="list")
+  tree$csv <- read.csv(filename,row.names=1)
+  tree$raw <- tree$csv %>%
+    select(Raw0:Raw499)
+  tree$matrix <- as.matrix(tree$raw)
+  tree$dimred <- tree$csv %>%
+    select(tsne0:tsne1)
+  #As input, dynwrap requires raw counts and normalised (log2) expression data.
+  tree$counts <- round(2**(tree$raw)-1)
+  tree$counts[tree$counts<0] <- 0
+  tree$dataset <- wrap_expression(
+    expression = tree$matrix,
+    counts = as.matrix(tree$counts)
+  )
+  tree$dataset <- add_prior_information(
+    tree$dataset,
+    start_id = "Row0",
+    start_n = 1,
+    end_n = 4,
+  )
+
+  return(tree)
+}
+```
+I now parse the four datasets. 
+```{r}
+tree1 <- form_tree_from_file('data/ContinuousTrees/tree1.csv')
+tree2 <- form_tree_from_file('data/ContinuousTrees/tree2.csv')
+tree3 <- form_tree_from_file('data/ContinuousTrees/tree3.csv')
+tree4 <- form_tree_from_file('data/ContinuousTrees/tree4.csv')
+```
+
+## Using dynverse
+
+The dynverse package has a function that advises the users on which methods are most suited to their problem. The methods they recommend for size of our data and with certain time and memory constraints are recorded in `guidelines` below.
+
+```{r,message=FALSE}
+# Reproduces the guidelines as created in the shiny app
+answers <- dynguidelines::answer_questions(
+  multiple_disconnected = FALSE,
+  expect_topology = TRUE,
+  expected_topology = "tree",
+  n_cells = 700,
+  n_features = 500,
+  time = "10m",
+  memory = "5GB",
+  prior_information = c("start_id", "end_n", "start_n"),
+  method_selection = "fixed_n_methods",
+  fixed_n_methods = 10,
+  docker = TRUE
+)
+guidelines <- dynguidelines::guidelines(answers = answers)
+```
+ To see an interactive/shiny version of the guidelines, run the following code.
+```{r,eval=FALSE,message=FALSE}
+dynguidelines::guidelines_shiny(answers = answers)
+```
+The methods I will use from `dynverse` are
+
+* `mst`
+* `slingshot`
+* `sincell`
+* `slice`
+* `slicer`
+* `tscan`
+* `waterfall`
+
+There were several other methods from dynverse that I attempted to use, but did not work for various reasons. Below are methods recommended by dynverse that did not work.
+
+* `paga` and `paga_tree`: gave an index error
+* `pcreode`: was very slow
+* `elpigraph`: was very slow
+* `monocle_ica`: threw the error `undefined column #monocle 1`
+* `raceid_stemid`: gave the error `execution halted`
+
+Here are some other methods that dynverse did not recommend, but I tried anyway without success.
+* `urd`: error in length of dimnames
+* `scuba`: error in size of an array
+* `mpath`: needs group cluster labels as a prior
+* `wishbone`: python value error
+* `wanderlust`: python value error
+* `scoup`: needs group cluster labels as a prior
+
+## EBMF Functions
+Below are functions based off of Jason's code which compute a divergence factorization of the code with point-laplace priors.
+```{r}
+div_cov_fit <- function(covmat, filename, prior = prior.point.laplace(), Kmax = 1000) {
+  fl <- div_fit(covmat, filename, prior, Kmax)
+  s2 <- max(0, mean(diag(covmat) - diag(fitted(fl))))
+  s2_diff <- Inf
+  while(s2 > 0 && abs(s2_diff - 1) > 1e-4) {
+    covmat_minuss2 <- covmat - diag(rep(s2, ncol(covmat)))
+    fl <- div_fit(covmat_minuss2,filename, prior, Kmax)
+    old_s2 <- s2
+    s2 <- max(0, mean(diag(covmat) - diag(fitted(fl))))
+    s2_diff <- s2 / old_s2
+  }
+
+  fl$ebcovmf_s2 <- s2
+
+  return(fl)
+}
+
+div_fit <- function(dat,filename, prior = prior.point.laplace(), Kmax = Inf, min_pve = 0, verbose.lvl = 0) {
+  #the first loading will be the all-ones vector
+  ones <- matrix(1, nrow = nrow(dat), ncol = 1)
+  #first factor will be least sq soln: argmin_f ||Y - ones t(f)||_F^2
+  ls.soln <- t(crossprod(ones, dat)/nrow(dat))
+
+  fl <- flash.init(dat) %>%
+    flash.set.verbose(verbose.lvl) %>%
+    #initialize L to be the ones vector, and F to be the least squares solution
+    flash.init.factors(list(ones, ls.soln)) %>%
+    #only fixing the first factor, and the we want to fix row loadings, so mode=1
+    flash.fix.loadings(kset = 1, mode = 1) %>%
+    #backfit to match the priors
+    flash.backfit() %>%
+    #add anoter factor
+    flash.add.greedy(
+      Kmax = 1,
+      #specified prior on L, and a normal distribution on F
+      prior.family = c(prior, prior.normal())
+    )
+
+  current_k <- 2
+  K <- 2
+
+  while(current_k <= K && K < Kmax) {
+    print(current_k)
+    #split into loadings for positive and negative parts (1-0 indicator vectors)
+    splus <- matrix(1L * (fl$loadings.pm[[1]][, current_k] > 0), ncol = 1)
+    sminus <- matrix(1L * (fl$loadings.pm[[1]][, current_k] < 0), ncol = 1)
+
+    if (sum(splus) > 0 && sum(sminus) > 0) {
+      #lst sq soln for positive and negative factors:
+      # argmin_f ||(Y-sum lk fk) - splus t(f)||_F^2
+      # argmin_f ||(Y-sum lk fk) - sminus t(f)||_F^2
+      ls.soln.plus  <- t(crossprod(splus,  dat - fitted(fl))/sum(splus))
+      ls.soln.minus <- t(crossprod(sminus, dat - fitted(fl))/sum(sminus))
+
+      #initializations of new loadings
+      EF <- list(cbind(splus, sminus), cbind(ls.soln.plus, ls.soln.minus))
+
+      next_fl <- fl %>%
+        #initialize new loadings
+        flash.init.factors(EF) %>%
+        flash.fix.loadings(kset = K + 1:2, mode = 1L, is.fixed = (EF[[1]] == 0)) %>%
+        flash.backfit(kset = K + 1:2)
+      if (any(next_fl$pve[K + 1:2] > min_pve)) {
+        fl <- next_fl
+      }
+    }
+
+    current_k <- current_k + 1
+    K <- fl$n.factors
+    if (verbose.lvl > 0) {
+      cat("K:", K, "\n")
+    }
+  }
+
+  fl$loadings.lfsr[[1]][, 1] <- 0
+  fl$loadings.lfsr[[1]][is.na(fl$loadings.lfsr[[1]])] <- 1
+
+  L <- fl$loadings.pm[[1]]
+  F <- fl$loadings.pm[[2]]
+  scale <- fl$loadings.scale
+
+  write.table(L,file=paste(filename,"L.csv",sep=''),sep=',')
+  write.table(F,file=paste(filename,"F.csv",sep=''),sep=',')
+  write.table(scale,file=paste(filename,"scale.csv",sep=''),sep=',')
+  write.table(fl$pve,file=paste(filename,"pve.csv",sep=''),sep=',')
+
+  return(fl)
+}
+```
+
+## Function to Run All the Methods
+
+The function below will run the various methods on a particular dataset.
+```{r}
+run_methods <- function(tree,outfile){
+  tree$trajectory <- vector(mode="list")
+  #jason's tree method
+  tree$trajectory$ebmf_cov <- div_cov_fit(cov(t(tree$matrix)),paste(outfile,'cov',sep=''),Kmax = 30)
+  tree$trajectory$ebmf <- div_fit(tree$matrix,outfile,Kmax = 30)
+  #recommended methods from dynverse that worked
+  tree$trajectory$mst <- infer_trajectory(tree$dataset,"mst",verbose=TRUE)
+  tree$trajectory$slingshot <- infer_trajectory(tree$dataset,"slingshot",verbose=TRUE)
+  tree$trajectory$sincell <- infer_trajectory(tree$dataset,"sincell",verbose=TRUE)
+  tree$trajectory$slice <- infer_trajectory(tree$dataset,"slice",verbose=TRUE)
+  #other methods from dynverse that worked
+  tree$trajectory$slicer <- infer_trajectory(tree$dataset,"slicer",verbose=TRUE)
+  tree$trajectory$tscan <- infer_trajectory(tree$dataset,"tscan",verbose=TRUE)
+  tree$trajectory$waterfall <- infer_trajectory(tree$dataset,"waterfall",verbose=TRUE)
+
+  return(tree)
+}
+```
+
+And then I run all the methods on the dataset for tree 1. The rest of the file can also be rerun for the other four trees, whose datasets are generated using similar assumptions but with different tree topologies. The methods from `drift_div_factorizations.R` save the computed EBMF factors to `output/ContinuousTrees`.
+
+```{r}
+tree1 <- run_methods(tree1,'output/ContinuousTrees/tree1/EBMFfactors/')
+# tree2 <- run_methods(tree2,'output/ContinuousTrees/tree2/EBMFfactors/')
+# tree3 <- run_methods(tree3,'output/ContinuousTrees/tree3/EBMFfactors/')
+# tree4 <- run_methods(tree4,'output/ContinuousTrees/tree4/EBMFfactors/')
+```
+
+## Results for Tree 1
+Here is a more detailed comparison of the outputs from dynverse of various methods for tree 1. We visualize the tree recovered using each method. 
+
+The most successful method from for the simulated data was probably a simple MST, which clusters the data and then computes a minimal spanning tree.
+```{r}
+plot_dimred(tree1$trajectory$mst,
+            dimred = tree1$dimred,
+            grouping = group_onto_nearest_milestones(tree1$trajectory$mst))
+```
+Slingshot did fairly well, but did not correctly identify the starting node, which should be reasonably simple to identify from the covariance matrix.
+```{r}
+plot_dimred(tree1$trajectory$slingshot,
+            dimred = tree1$dimred,
+            grouping = group_onto_nearest_milestones(tree1$trajectory$slingshot))
+```
+Sincell adds some extra nodes, but does fairly well at connecting them.
+```{r}
+plot_dimred(tree1$trajectory$sincell,
+            dimred = tree1$dimred,
+            grouping = group_onto_nearest_milestones(tree1$trajectory$sincell))
+```
+Slice did not identify a tree structure.
+```{r}
+plot_dimred(tree1$trajectory$slice,
+            dimred = tree1$dimred,
+            grouping = group_onto_nearest_milestones(tree1$trajectory$slice))
+```
+Slicer's results are hard to interpret, but it doesn't recover the tree very well.
+```{r}
+plot_dimred(tree1$trajectory$slicer,
+            dimred = tree1$dimred,
+            grouping = group_onto_nearest_milestones(tree1$trajectory$slicer))
+```
+TSCAN gives a reasonable answer for a linear trajectory through the data.
+```{r}
+plot_dimred(tree1$trajectory$tscan,
+            dimred = tree1$dimred,
+            grouping = group_onto_nearest_milestones(tree1$trajectory$tscan))
+```
+Waterfall's results are not very convincing.
+```{r}
+plot_dimred(tree1$trajectory$waterfall,
+            dimred = tree1$dimred,
+            grouping = group_onto_nearest_milestones(tree1$trajectory$waterfall))
+```
