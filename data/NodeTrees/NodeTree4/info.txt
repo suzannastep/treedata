@@ -1,0 +1,8 @@
+levels 3
+stdev 1
+seed 1
+N 100
+dim 500
+deltat 1
+start zeros vector
+methods ['pca', 'tsne']
