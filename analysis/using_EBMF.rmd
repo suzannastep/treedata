@@ -9,9 +9,11 @@ editor_options:
 
 ## Introduction
 
-This analysis will explore using EBMF to detect tree structure in some synthetic data sets by computing either the drift or the divergence factorization. The functions used in this file are from `code/drift_div_factorizations.R`
+This analysis will explore using EBMF to detect tree structure in some synthetic data sets by computing either the drift or the divergence factorization. The functions used in this file are from `code/drift_div_factorizations.R`. We also import some libraries for plotting purposes.
 
-```{r,message=FALSE}
+```{r source r code, message=FALSE, warning=FALSE}
+library(RColorBrewer)
+library(scales)
 source("code/drift_div_factorizations.R")
 ```
 
@@ -20,106 +22,136 @@ I will be using two types of data sets in this analysis. All are based on the mo
 
 The function `form_tree_from_file` in `code/drift_div_factorizations.R` parses the raw data into a format that can be fed into the various methods. Below, we load one data set of each type.
 
-```{r}
+```{r load data}
 nodetree <- form_tree_from_file('data/NodeTrees/NodeTree4/NodeTree4.csv')
 continuoustree <- form_tree_from_file('data/ContinuousTrees/tree1.csv')
 ```
 
 One way to understand the trees is by examining their covariance matrix. For example, here is an image of the covariance matrix of the first node tree data set, where the spots in the matrix are colored by their value.
-```{r}
+```{r cov plot nodetree}
 image.plot(cov(t(nodetree$matrix)))
 ```
-You can see that there are nested blocks in the matrix. Another way to understand the trees is by plotting a dimensionality reduction. These are saved as `tree$dimred`.
-```{r}
-plot(nodetree$dimred,col=1+nodetree$csv$Labels,bg="#808080")
+You can see that there are nested blocks in the matrix. Another way to understand the trees is by plotting a dimensionality reduction. The data set can be reduced to two dimensions (here we do so using tsne), and then we can draw arrows between parents and their children.
+```{r nodetree plot}
+plot_nodetree <- function(tree,color=1+tree$csv$Labels,palette=c("#0000D2","#D2D2D2","#D20000")){
+  #create colormap
+  ## create color palette function
+  pal <- colorRamp(palette)
+  ## rescale color to be between 0 and 1, and 0.5 being the "zero" point
+  newcolor <- color/max(abs(color)) / 2 + 0.5
+  ## use pal and alpha to get rgb value for color 
+  newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
+  ## make colored scatter plot
+  plot(tree$dimred,col=newcolor,pch=20)
+  
+  # draw arrows between parents and children
+  ## get all the different labels of the nodes
+  labels <- unique(tree$csv$Labels)
+  ## get the nodes that are parents
+  parents <- labels[1:(length(labels)/2)]
+  ## initialize index of child and num children per node
+  childidx <- 2 
+  children_per_node <- 2
+  ## draw arrows
+  for (parent in parents){
+    for (childnum in 1:children_per_node){
+      child <- labels[childidx]
+      arrows(mean(tree$dimred$tsne0[tree$csv$Labels == parent]),
+             mean(tree$dimred$tsne1[tree$csv$Labels == parent]),
+             mean(tree$dimred$tsne0[tree$csv$Labels == child]),
+             mean(tree$dimred$tsne1[tree$csv$Labels == child]),
+             length=0.05)
+      childidx <- childidx + 1
+    }
+  }
+}
+plot_nodetree(nodetree,palette=1:20)
 ```
-That there are clusters of points around each nodes.
+There are clusters of points around each nodes.
 
-In contrast, here is the covariance matrix and dimensionality reduction of one of the continuous trees.
-```{r}
+In contrast, here is the covariance matrix and dimensionality reduction of one of the continuous trees plotted with arrows between the start and end of each branch.
+```{r cont tree plot}
 image.plot(cov(t(continuoustree$matrix)))
-plot(continuoustree$dimred,col=1+continuoustree$csv$Labels,bg="#808080")
+plot_continuoustree <- function(tree,color=tree$csv$Labels,palette=c("#0000D2","#D2D2D2","#D20000")){
+  #create colormap
+  ## create color palette function
+  pal <- colorRamp(palette)
+  ## rescale color to be between 0 and 1, and 0.5 being the "zero" point
+  newcolor <- color/max(abs(color)) / 2 + 0.5
+  ## use pal and alpha to get rgb value for color 
+  newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
+  ## make colored scatter plot
+  plot(tree$dimred,col=newcolor,pch=20)
+  
+  # draw arrows along branches
+  ## get all the different labels of the nodes
+  labels <- unique(tree$csv$Labels)
+  ## draw arrows
+  for (label in labels){
+    group <- tree$dimred[tree$csv$Labels == label,]
+    first <- head(group,1)
+    last <- tail(group,1)
+    arrows(first$tsne0,first$tsne1,
+           last$tsne0,last$tsne1,
+           length=0.05)
+  }
+}
+plot_continuoustree(continuoustree,palette=1:7)
 ```
 
 ## The Methods
 
 The functions `drift_fit` and `div_fit` in `code/drift_div_factorizations.R` fit drift and divergence factorizations to the data using EBMF methods. It uses point-Laplace priors for divergence loadings, point-exponential priors for drift loadings, and normal priors on the factors. 
 
-## Plotting Function
-
-Here is a python plotting function that will be used to visualize the output of the EBMF algorithms. It plots the dimensionality reduction of the data colored so that points with positive loadings are red on a particular factor, and negative loadings are blue. How red or blue a point is corresponds to the magnitude of the loading. 
-
-Below is the python code to generate the plots. I couldn't get python to play nicely with R markdown, though, so I have manually embedded the plots.
-
-```{r setup, include=FALSE,eval=FALSE}
-library(knitr)
-library(reticulate)
-knitr::knit_engines$set(python = reticulate::eng_python)
-```
-
-```{r,eval=FALSE}
-import numpy as np
-import pandas as pd
-from matplotlib import pyplot as plt
-
-def plot_ebnm_results(filename,method="drift"):
-    #load computed factors and loadings
-    if filename[-9:-1] == "NodeTree":
-        data = pd.read_csv(f'data/{filename + "/"+ filename[-9:] }.csv')
-    else:
-        data = pd.read_csv(f'data/{filename}.csv')
-    L = pd.read_csv(f"output/{filename}/EBMFfactors/{method}L.csv").values
-    F = pd.read_csv(f"output/{filename}/EBMFfactors/{method}F.csv").values
-    pve = pd.read_csv(f"output/{filename}/EBMFfactors/{method}pve.csv").values[:,0]
-
-    #sort accorinding to pve
-    srt = np.arange(len(pve))
-
-    #plot
-    plt.set_cmap('coolwarm')
-    numfactors = L.shape[1]
-    num_rows = int(numfactors/3)*3
-    plt.figure(figsize=(15,num_rows*5))
-    for k,factor,loading,pv in zip(range(numfactors),F.T[srt],L.T[srt],pve[srt]):
-        ax = plt.subplot(num_rows,3,k+1)
-        _max = max(abs(loading))
-        ax.scatter(data.tsne0,data.tsne1,c=loading,alpha=.7,s=3,vmin=-_max,vmax=_max)
-        ax.set_title(f'factor {k+1}, pve {np.round(pv,2)}')
-        ax.set_xlim(-50,50)
-        ax.set_ylim(-50,50)
-    plt.suptitle(filename.title() + ' '+ method.title())
-    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-    plt.show()
-```
 ## Performance on Node Trees
 We run the methods on node trees.
-```{r}
-nodetree <- run_methods(nodetree,'output/NodeTrees/NodeTree4/EBMFfactors/',Kmax=10,eps = 2e-2)
+```{r run nodetree}
+nodetree <- run_methods(nodetree,'output/NodeTrees/NodeTree4/EBMFfactors/',Kmax=Inf,eps=2e-2)
 ```
 Here is what the loadings look like for node tree 4.
-```{python,eval=FALSE}
-plot_ebnm_results("NodeTrees/NodeTree4","drift")
-plot_ebnm_results("NodeTrees/NodeTree4","div")
+
+First, using the drift factorization.
+```{r plot loadings nodetree drift, fig.height = 8, fig.width = 6}
+loadings = nodetree$trajectory$drift$loadings.pm[[1]]
+numloadings = dim(loadings)[2]
+par(mfrow = c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
+for (loadingnum in 1:numloadings){
+  plot_nodetree(nodetree,color=loadings[,loadingnum])
+}
 ```
-
-![drifttree1](../output/NodeTrees/NodeTree4/drift.png)
-
-![divtree1](../output/NodeTrees/NodeTree4/div.png)
+Now, using the divergence factorization.
+```{r plot loadings nodetree div, fig.height = 8, fig.width = 6}
+loadings = nodetree$trajectory$div$loadings.pm[[1]]
+numloadings = dim(loadings)[2]
+par(mfrow = c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
+for (loadingnum in 1:numloadings){
+  plot_nodetree(nodetree,color=loadings[,loadingnum])
+}
+```
 
 ## Performance on Continuous Trees
 We now run the methods on continuous trees.
-```{r}
-continuoustree <- run_methods(continuoustree,'output/ContinuousTrees/tree1/EBMFfactors/',Kmax = 10,eps = 1e-2)
+```{r run cont tree}
+continuoustree <- run_methods(continuoustree,'output/ContinuousTrees/tree1/EBMFfactors/',Kmax=6,eps=1e-2)
 ```
-Here are plots of what the resulting loadings look like for tree 1.
-```{python,eval=FALSE}    
-plot_ebnm_results("ContinuousTrees/tree1","drift")
-plot_ebnm_results("ContinuousTrees/tree1","div")
+Here are the results using the drift factorization.
+```{r plot loadings cont tree drift, fig.height = 4, fig.width = 6}
+loadings = continuoustree$trajectory$drift$loadings.pm[[1]]
+numloadings = dim(loadings)[2]
+par(mfrow = c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
+for (loadingnum in 1:numloadings){
+  plot_continuoustree(continuoustree,color=loadings[,loadingnum])
+}
 ```
-
-![drifttree1](../output/ContinuousTrees/tree1/drift.png)
-
-![divtree1](../output/ContinuousTrees/tree1/div.png)
+Finally, using the divergence factorization, the loadings can be visualized using this plot.
+```{r plot loadings cont tree div, fig.height = 4, fig.width = 6}
+loadings = continuoustree$trajectory$div$loadings.pm[[1]]
+numloadings = dim(loadings)[2]
+par(mfrow = c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
+for (loadingnum in 1:numloadings){
+  plot_continuoustree(continuoustree,color=loadings[,loadingnum])
+}
+```
 
 ## Issues and questions to think about for drift factorization fits
 
