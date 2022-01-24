@@ -1,0 +1,41 @@
+---
+title: "Divergence Factorizations Cannot Be Naively Extended to Internal Node Data"
+author: "Sue Parkinson"
+date: "1/24/2022"
+output:
+  pdf_document: default
+  html_document: default
+header-includes:
+    - \usepackage{qtree}
+    - \newenvironment{tree}{}{}
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\newcommand{\data}{\mathbf X}
+\newcommand{\loadings}{\mathbf L}
+\newcommand{\factors}{\mathbf F}
+\newcommand{\R}{\mathbb R}
+\newcommand{\ones}{\mathbf 1}
+
+## Introduction
+
+In Chapter 2 of Jason Willwerscheid's thesis, he defines the divergence factorization
+ of tree structured data where data is only located at the leaves of a tree, and proves this factorization always exists. It would be natural to try to extend this definition to data at internal nodes. However, the factorization no longer always exists in this case, as the following counterexample shows.
+ 
+For simplicity, I will work with the covariance matrix of the data. Assuming that $\data$ has a divergence factorization $\data \approx \loadings \factors^\top$ is equivalent to assuming that $Cov(X) \approx L L^\top$ for some matrix $L$ that satisfies the following assumptions.
+
+* The first column of $L$ is $\lambda_1 \ones$ where $\ones$ denotes the all-ones vector and $\lambda_1>0$. (This corresponds to some overall drift term.)
+* There is exactly one additional column in $L$ for each "divergence" in the tree; that is, for each node that is not a leaf.
+* For each column after the first, the entries are either $\lambda_k > 0$,$-\nu_k < 0$, or zero. Nodes that fall to the "left" of the divergence have loading $\lambda_k$, and nodes  that fall to the "right" of the divergence have loading $-\nu_k$, or vice versa. Other nodes have loading zero.
+
+In total, a data set with $K$ non-leaf nodes will have have $K+1$ columns.
+
+## Example
+
+Here is an example of a divergence factorization for 
+
+\begin{tree}
+\Tree[.ABC [.AB [.A ][.B ] ][.C ] ]
+\end{tree}
