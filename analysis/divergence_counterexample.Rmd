@@ -2,12 +2,9 @@
 title: "Divergence Factorizations Cannot Be Naively Extended to Internal Node Data"
 author: "Sue Parkinson"
 date: "1/24/2022"
-output:
-  pdf_document: default
-  html_document: default
-header-includes:
-    - \usepackage{qtree}
-    - \newenvironment{tree}{}{}
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -36,6 +33,8 @@ In total, a data set with $K$ non-leaf nodes will have have $K+1$ columns.
 
 Here is an example of a divergence factorization for 
 
-\begin{tree}
-\Tree[.ABC [.AB [.A ][.B ] ][.C ] ]
-\end{tree}
+```{r pressure, echo=FALSE, fig.cap="A caption", out.width = '100%'}
+knitr::include_graphics("figure/divergence_counterexample.Rmd/example.jpg")
+```
+
+asdfasdf
