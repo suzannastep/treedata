@@ -10,5 +10,6 @@ editor_options:
 
 Welcome to my research website. Click around to see the various analyses!
 
+1. [Divergence Factorizations Cannot Be Naively Extended to Internal Node Data](divergence_counterexample.html)
 1. [Testing Trajectory Inference Methods from Dynverse](dynverse_testing.html)
 1. [Drift and Divergence Factorizations](using_EBMF.html)
