@@ -21,7 +21,7 @@ knitr::opts_chunk$set(echo = TRUE)
 In Chapter 2 of Jason Willwerscheid's thesis, he defines the divergence factorization
  of tree structured data where data is only located at the leaves of a tree, and proves this factorization always exists. It would be natural to try to extend this definition to data at internal nodes. However, the factorization no longer always exists in this case, as the following counterexample shows.
  
-For simplicity, I will work with the covariance matrix of the data. Assuming that $\data$ has a divergence factorization $\data \approx \loadings \factors^\top$ is equivalent to assuming that $Cov(X) \approx L L^\top$ for some matrix $L$ that satisfies the following assumptions.
+For simplicity, I will work with the covariance matrix of the data. Assuming that $\data$ has a divergence factorization $\data \approx \loadings \factors^\top$ with independent, mean zero factors is equivalent to assuming that $Cov(X) \approx L L^\top$ for some matrix $L$ that satisfies the following assumptions.
 
 * The first column of $L$ is $\lambda_1 \ones$ where $\ones$ denotes the all-ones vector and $\lambda_1>0$. (This corresponds to some overall drift term.)
 * There is exactly one additional column in $L$ for each "divergence" in the tree; that is, for each node that is not a leaf.
@@ -31,10 +31,147 @@ In total, a data set with $K$ non-leaf nodes will have have $K+1$ columns.
 
 ## Example
 
-Here is an example of a divergence factorization for 
+Here is an example of a divergence factorization for the tree shown below.
 
-```{r pressure, echo=FALSE, fig.cap="A caption", out.width = '100%'}
-knitr::include_graphics("figure/divergence_counterexample.Rmd/example.jpg")
-```
+![example](example.jpg)
 
-asdfasdf
+## Leaf Nodes Covariance Matrix and Divergence Factorization
+
+If we only look at the leaf nodes, we can get a divergence factorization. Here is the covariance matrix.
+
+$$
+M = \begin{bmatrix}
+2 & 1 & 0 \\
+1 & 2 & 0 \\
+0 & 0 & 2
+\end{bmatrix}
+$$
+Let's assume that a divergence factorization $M = L L^\top$ exists, and try to find $L$. If $L$ has the desired divergence structure, then for some $\lambda_1,\lambda_2,\nu_2,\lambda_3,\nu_3 > 0$,
+
+<div class="math">
+$$
+L = \begin{array}{cc} &
+\begin{array}{ccc}  & ABC & AB \end{array}
+\\
+\begin{array}{ccc}
+A \\
+B \\
+C \end{array}
+&
+\left(
+\begin{array}{ccc}
+\lambda_1 & \lambda_2 & \lambda_3 \\
+\lambda_1 & \lambda_2 & -\nu_3 \\
+\lambda_1 & -\nu_2    & 0 \\
+\end{array}
+\right)
+\end{array}
+$$
+</div>
+
+Saying that $M = L L^\top$ is equivalent to saying that $M_{ij} = \sum_k L_{ik} L_{jk}$. This gives us the following system of equations.
+
+\begin{align*}
+0 &= \lambda_1^2 - \lambda_2 \nu_2 \\
+1 &= \lambda_1^2 + \lambda_2^2 - \lambda_3 \nu_3 \\
+2 &= \lambda_1^2 + \nu_2^2\\
+2 &= \lambda_1^2 + \lambda_2^2 + \lambda_3^2 \\
+2 &= \lambda_1^2 + \lambda_2^2 + \nu_3^2 \\
+\end{align*}
+
+The last two equations imply that $\lambda_3^2 = \nu_3^2$. Since both values are positive, $\lambda_3 = \nu_3$. By the second equation, we see that
+
+$$1 = \lambda_1^2 + \lambda_2^2 - \lambda_3^2$$
+Combining this information with the fact that 
+$$2 = \lambda_1^2 + \lambda_2^2 + \lambda_3^2,$$
+it is straightforward to see that $\lambda_3 = \nu_3 = \frac{1}{\sqrt{2}}$. Here's an updated system of equations with this new information.
+
+\begin{align*}
+0 &= \lambda_1^2 - \lambda_2 \nu_2 \\
+\frac{3}{2} &= \lambda_1^2 + \lambda_2^2\\
+2 &= \lambda_1^2 + \nu_2^2.
+\end{align*}
+
+If we add equations the second and third equations and use the fact that $\lambda_1^2 = \lambda_2 \nu_2$, we see that
+
+$$
+\frac{7}{2} = \nu_2^2 + 2\lambda_2 \nu_2+ \lambda_2^2 = (\lambda_2 + \nu_2)^2.
+$$
+Thus $\nu_2 + \lambda_2 = \frac{\sqrt{7}}{\sqrt{2}} = \frac{7}{\sqrt{14}}$. On the other hand, 
+
+$$
+\frac{1}{2} = \nu_2^2 - \lambda_2^2 = (\lambda_2 + \nu_2)(\nu_2 - \lambda_2) = \frac{7}{\sqrt{14}}(\nu_2 - \lambda_2).
+$$
+
+Thus $\nu_2 - \lambda_2 = \frac{1}{\sqrt{14}}$. It follows that $\nu_2 = \frac{4}{\sqrt{14}}$ and $\lambda_2 = \frac{3}{\sqrt{14}}$. Finally, $\lambda_1^2 = \lambda_2 \nu_2 = \frac{6}{7}$. 
+
+Overall, we see that
+<div class="math">
+$$
+L = \begin{array}{cc} &
+\begin{array}{ccc}  & ABC & AB \end{array}
+\\
+\begin{array}{ccc}
+A \\
+B \\
+C \end{array}
+&
+\left(
+\begin{array}{ccc}
+\frac{\sqrt{6}}{\sqrt{7}} & \frac{4}{\sqrt{14}} & \frac{1}{\sqrt{2}} \\
+\frac{\sqrt{6}}{\sqrt{7}} & \frac{4}{\sqrt{14}} & -\frac{1}{\sqrt{2}} \\
+\frac{\sqrt{6}}{\sqrt{7}} & -\frac{3}{\sqrt{14}}    & 0 \\
+\end{array}
+\right)
+\end{array}
+$$
+</div>
+
+## Adding internal nodes
+
+If we add the internal node $AB$, then the covariance matrix becomes 
+
+$$
+M = \begin{bmatrix}
+1 & 1 & 1 & 0 \\
+1 & 2 & 1 & 0 \\
+1 & 1 & 2 & 0 \\
+0 & 0 & 0 & 2
+\end{bmatrix}
+$$
+
+If we assume that $M_{ij} = \sum_k L_{ik} L_{jk}$ and $L$ has the structure 
+<div class="math">
+$$
+L = \begin{array}{cc} &
+\begin{array}{ccc}  & ABC & AB \end{array}
+\\
+\begin{array}{ccc}
+AB \\
+A \\
+B \\
+C \end{array}
+&
+\left(
+\begin{array}{ccc}
+\lambda_1 & \lambda_2 & 0 \\
+\lambda_1 & \lambda_2 & \lambda_3 \\
+\lambda_1 & \lambda_2 & -\nu_3 \\
+\lambda_1 & -\nu_2    & 0 \\
+\end{array}
+\right)
+\end{array}
+$$
+</div>
+then we get the same system of equations with the additional restriction that $\lambda_1^2 + \lambda_2^2 = 1$:
+
+\begin{align*}
+0 &= \lambda_1^2 - \lambda_2 \nu_2 \\
+1 &= \lambda_1^2 + \lambda_2^2 \\
+1 &= \lambda_1^2 + \lambda_2^2 - \lambda_3 \nu_3 \\
+2 &= \lambda_1^2 + \nu_2^2\\
+2 &= \lambda_1^2 + \lambda_2^2 + \lambda_3^2 \\
+2 &= \lambda_1^2 + \lambda_2^2 + \nu_3^2 \\
+\end{align*}
+
+This clearly has no solutions because the second and third equations imply that $\lambda_3 = \nu_3 = 0$, which cannot be true if the last two equations are to hold.
