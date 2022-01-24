@@ -475,16 +475,16 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomsuzannasteptreedatatree6ca092708279d4bedde77ae1fbcf282886aa4376targetblank6ca0927a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/suzannastep/treedata/tree/6ca092708279d4bedde77ae1fbcf282886aa4376" target="_blank">6ca0927</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomsuzannasteptreedatatreeae28024b7edb34ee0e51ef66f7cfbf0f4a3b3d9ftargetblankae28024a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/suzannastep/treedata/tree/ae28024b7edb34ee0e51ef66f7cfbf0f4a3b3d9f" target="_blank">ae28024</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomsuzannasteptreedatatree6ca092708279d4bedde77ae1fbcf282886aa4376targetblank6ca0927a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomsuzannasteptreedatatreeae28024b7edb34ee0e51ef66f7cfbf0f4a3b3d9ftargetblankae28024a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/suzannastep/treedata/tree/6ca092708279d4bedde77ae1fbcf282886aa4376" target="_blank">6ca0927</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/suzannastep/treedata/tree/ae28024b7edb34ee0e51ef66f7cfbf0f4a3b3d9f" target="_blank">ae28024</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -540,7 +540,11 @@ Ignored files:
     Ignored:    output/NodeTrees/NodeTree9/EBMFfactors/.DS_Store
 
 Untracked files:
-    Untracked:  figure/divergence_counterexample.Rmd/
+    Untracked:  analysis/.ipynb_checkpoints/Untitled-checkpoint.ipynb
+    Untracked:  analysis/Untitled.ipynb
+
+Unstaged changes:
+    Deleted:    figure/divergence_counterexample.Rmd/example.jpg
 
 </code></pre>
 <p>
@@ -579,6 +583,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/suzannastep/treedata/blob/ae28024b7edb34ee0e51ef66f7cfbf0f4a3b3d9f/analysis/divergence_counterexample.Rmd" target="_blank">ae28024</a>
+</td>
+<td>
+Sue Parkinson
+</td>
+<td>
+2022-01-24
+</td>
+<td>
+finished counterexample
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/suzannastep/treedata/212f33dece1c762c1d7008f74dafae5039c2ee5f/docs/divergence_counterexample.html" target="_blank">212f33d</a>
+</td>
+<td>
+Sue Parkinson
+</td>
+<td>
+2022-01-24
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -640,7 +678,7 @@ counterexample for divergence factorization
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
 <p>In Chapter 2 of Jason Willwerscheid’s thesis, he defines the divergence factorization of tree structured data where data is only located at the leaves of a tree, and proves this factorization always exists. It would be natural to try to extend this definition to data at internal nodes. However, the factorization no longer always exists in this case, as the following counterexample shows.</p>
-<p>For simplicity, I will work with the covariance matrix of the data. Assuming that <span class="math inline">\(\mathbf X\)</span> has a divergence factorization <span class="math inline">\(\mathbf X\approx \mathbf L\mathbf F^\top\)</span> is equivalent to assuming that <span class="math inline">\(Cov(X) \approx L L^\top\)</span> for some matrix <span class="math inline">\(L\)</span> that satisfies the following assumptions.</p>
+<p>For simplicity, I will work with the covariance matrix of the data. Assuming that <span class="math inline">\(\mathbf X\)</span> has a divergence factorization <span class="math inline">\(\mathbf X\approx \mathbf L\mathbf F^\top\)</span> with independent, mean zero factors is equivalent to assuming that <span class="math inline">\(Cov(X) \approx L L^\top\)</span> for some matrix <span class="math inline">\(L\)</span> that satisfies the following assumptions.</p>
 <ul>
 <li>The first column of <span class="math inline">\(L\)</span> is <span class="math inline">\(\lambda_1 \mathbf 1\)</span> where <span class="math inline">\(\mathbf 1\)</span> denotes the all-ones vector and <span class="math inline">\(\lambda_1&gt;0\)</span>. (This corresponds to some overall drift term.)</li>
 <li>There is exactly one additional column in <span class="math inline">\(L\)</span> for each “divergence” in the tree; that is, for each node that is not a leaf.</li>
@@ -650,14 +688,131 @@ counterexample for divergence factorization
 </div>
 <div id="example" class="section level2">
 <h2>Example</h2>
-<p>Here is an example of a divergence factorization for</p>
-<div class="figure" style="text-align: center">
-<img src="figure/divergence_counterexample.Rmd/example.jpg" alt="A caption" width="100%" />
-<p class="caption">
-A caption
-</p>
+<p>Here is an example of a divergence factorization for the tree shown below.</p>
+<div class="figure">
+<img src="example.jpg" alt="" />
+<p class="caption">example</p>
 </div>
-<p>asdfasdf</p>
+</div>
+<div id="leaf-nodes-covariance-matrix-and-divergence-factorization" class="section level2">
+<h2>Leaf Nodes Covariance Matrix and Divergence Factorization</h2>
+<p>If we only look at the leaf nodes, we can get a divergence factorization. Here is the covariance matrix.</p>
+<p><span class="math display">\[
+M = \begin{bmatrix}
+2 &amp; 1 &amp; 0 \\
+1 &amp; 2 &amp; 0 \\
+0 &amp; 0 &amp; 2
+\end{bmatrix}
+\]</span> Let’s assume that a divergence factorization <span class="math inline">\(M = L L^\top\)</span> exists, and try to find <span class="math inline">\(L\)</span>. If <span class="math inline">\(L\)</span> has the desired divergence structure, then for some <span class="math inline">\(\lambda_1,\lambda_2,\nu_2,\lambda_3,\nu_3 &gt; 0\)</span>,</p>
+<div class="math">
+<p><span class="math display">\[
+L = \begin{array}{cc} &amp;
+\begin{array}{ccc}  &amp; ABC &amp; AB \end{array}
+\\
+\begin{array}{ccc}
+A \\
+B \\
+C \end{array}
+&amp;
+\left(
+\begin{array}{ccc}
+\lambda_1 &amp; \lambda_2 &amp; \lambda_3 \\
+\lambda_1 &amp; \lambda_2 &amp; -\nu_3 \\
+\lambda_1 &amp; -\nu_2    &amp; 0 \\
+\end{array}
+\right)
+\end{array}
+\]</span></p>
+</div>
+<p>Saying that <span class="math inline">\(M = L L^\top\)</span> is equivalent to saying that <span class="math inline">\(M_{ij} = \sum_k L_{ik} L_{jk}\)</span>. This gives us the following system of equations.</p>
+<p><span class="math display">\[\begin{align*}
+0 &amp;= \lambda_1^2 - \lambda_2 \nu_2 \\
+1 &amp;= \lambda_1^2 + \lambda_2^2 - \lambda_3 \nu_3 \\
+2 &amp;= \lambda_1^2 + \nu_2^2\\
+2 &amp;= \lambda_1^2 + \lambda_2^2 + \lambda_3^2 \\
+2 &amp;= \lambda_1^2 + \lambda_2^2 + \nu_3^2 \\
+\end{align*}\]</span></p>
+<p>The last two equations imply that <span class="math inline">\(\lambda_3^2 = \nu_3^2\)</span>. Since both values are positive, <span class="math inline">\(\lambda_3 = \nu_3\)</span>. By the second equation, we see that</p>
+<p><span class="math display">\[1 = \lambda_1^2 + \lambda_2^2 - \lambda_3^2\]</span> Combining this information with the fact that <span class="math display">\[2 = \lambda_1^2 + \lambda_2^2 + \lambda_3^2,\]</span> it is straightforward to see that <span class="math inline">\(\lambda_3 = \nu_3 = \frac{1}{\sqrt{2}}\)</span>. Here’s an updated system of equations with this new information.</p>
+<p><span class="math display">\[\begin{align*}
+0 &amp;= \lambda_1^2 - \lambda_2 \nu_2 \\
+\frac{3}{2} &amp;= \lambda_1^2 + \lambda_2^2\\
+2 &amp;= \lambda_1^2 + \nu_2^2.
+\end{align*}\]</span></p>
+<p>If we add equations the second and third equations and use the fact that <span class="math inline">\(\lambda_1^2 = \lambda_2 \nu_2\)</span>, we see that</p>
+<p><span class="math display">\[
+\frac{7}{2} = \nu_2^2 + 2\lambda_2 \nu_2+ \lambda_2^2 = (\lambda_2 + \nu_2)^2.
+\]</span> Thus <span class="math inline">\(\nu_2 + \lambda_2 = \frac{\sqrt{7}}{\sqrt{2}} = \frac{7}{\sqrt{14}}\)</span>. On the other hand,</p>
+<p><span class="math display">\[
+\frac{1}{2} = \nu_2^2 - \lambda_2^2 = (\lambda_2 + \nu_2)(\nu_2 - \lambda_2) = \frac{7}{\sqrt{14}}(\nu_2 - \lambda_2).
+\]</span></p>
+<p>Thus <span class="math inline">\(\nu_2 - \lambda_2 = \frac{1}{\sqrt{14}}\)</span>. It follows that <span class="math inline">\(\nu_2 = \frac{4}{\sqrt{14}}\)</span> and <span class="math inline">\(\lambda_2 = \frac{3}{\sqrt{14}}\)</span>. Finally, <span class="math inline">\(\lambda_1^2 = \lambda_2 \nu_2 = \frac{6}{7}\)</span>.</p>
+Overall, we see that
+<div class="math">
+<p><span class="math display">\[
+L = \begin{array}{cc} &amp;
+\begin{array}{ccc}  &amp; ABC &amp; AB \end{array}
+\\
+\begin{array}{ccc}
+A \\
+B \\
+C \end{array}
+&amp;
+\left(
+\begin{array}{ccc}
+\frac{\sqrt{6}}{\sqrt{7}} &amp; \frac{4}{\sqrt{14}} &amp; \frac{1}{\sqrt{2}} \\
+\frac{\sqrt{6}}{\sqrt{7}} &amp; \frac{4}{\sqrt{14}} &amp; -\frac{1}{\sqrt{2}} \\
+\frac{\sqrt{6}}{\sqrt{7}} &amp; -\frac{3}{\sqrt{14}}    &amp; 0 \\
+\end{array}
+\right)
+\end{array}
+\]</span></p>
+</div>
+</div>
+<div id="adding-internal-nodes" class="section level2">
+<h2>Adding internal nodes</h2>
+<p>If we add the internal node <span class="math inline">\(AB\)</span>, then the covariance matrix becomes</p>
+<p><span class="math display">\[
+M = \begin{bmatrix}
+1 &amp; 1 &amp; 1 &amp; 0 \\
+1 &amp; 2 &amp; 1 &amp; 0 \\
+1 &amp; 1 &amp; 2 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 2
+\end{bmatrix}
+\]</span></p>
+If we assume that <span class="math inline">\(M_{ij} = \sum_k L_{ik} L_{jk}\)</span> and <span class="math inline">\(L\)</span> has the structure
+<div class="math">
+<p><span class="math display">\[
+L = \begin{array}{cc} &amp;
+\begin{array}{ccc}  &amp; ABC &amp; AB \end{array}
+\\
+\begin{array}{ccc}
+AB \\
+A \\
+B \\
+C \end{array}
+&amp;
+\left(
+\begin{array}{ccc}
+\lambda_1 &amp; \lambda_2 &amp; 0 \\
+\lambda_1 &amp; \lambda_2 &amp; \lambda_3 \\
+\lambda_1 &amp; \lambda_2 &amp; -\nu_3 \\
+\lambda_1 &amp; -\nu_2    &amp; 0 \\
+\end{array}
+\right)
+\end{array}
+\]</span></p>
+</div>
+<p>then we get the same system of equations with the additional restriction that <span class="math inline">\(\lambda_1^2 + \lambda_2^2 = 1\)</span>:</p>
+<p><span class="math display">\[\begin{align*}
+0 &amp;= \lambda_1^2 - \lambda_2 \nu_2 \\
+1 &amp;= \lambda_1^2 + \lambda_2^2 \\
+1 &amp;= \lambda_1^2 + \lambda_2^2 - \lambda_3 \nu_3 \\
+2 &amp;= \lambda_1^2 + \nu_2^2\\
+2 &amp;= \lambda_1^2 + \lambda_2^2 + \lambda_3^2 \\
+2 &amp;= \lambda_1^2 + \lambda_2^2 + \nu_3^2 \\
+\end{align*}\]</span></p>
+<p>This clearly has no solutions because the second and third equations imply that <span class="math inline">\(\lambda_3 = \nu_3 = 0\)</span>, which cannot be true if the last two equations are to hold.</p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -684,17 +839,17 @@ other attached packages:
 [1] workflowr_1.7.0
 
 loaded via a namespace (and not attached):
- [1] Rcpp_1.0.8       highr_0.9        compiler_4.1.2   pillar_1.6.4    
- [5] bslib_0.3.1      later_1.3.0      git2r_0.29.0     jquerylib_0.1.4 
- [9] tools_4.1.2      getPass_0.2-2    digest_0.6.29    jsonlite_1.7.3  
-[13] evaluate_0.14    tibble_3.1.6     lifecycle_1.0.1  pkgconfig_2.0.3 
-[17] rlang_0.4.12     rstudioapi_0.13  yaml_2.2.1       xfun_0.29       
-[21] fastmap_1.1.0    httr_1.4.2       stringr_1.4.0    knitr_1.37      
-[25] sass_0.4.0       fs_1.5.2         vctrs_0.3.8      rprojroot_2.0.2 
-[29] glue_1.6.0       R6_2.5.1         processx_3.5.2   fansi_1.0.2     
-[33] rmarkdown_2.11   callr_3.7.0      magrittr_2.0.1   whisker_0.4     
-[37] ps_1.6.0         promises_1.2.0.1 htmltools_0.5.2  ellipsis_0.3.2  
-[41] httpuv_1.6.5     utf8_1.2.2       stringi_1.7.6    crayon_1.4.2    </code></pre>
+ [1] Rcpp_1.0.8       compiler_4.1.2   pillar_1.6.4     bslib_0.3.1     
+ [5] later_1.3.0      git2r_0.29.0     jquerylib_0.1.4  tools_4.1.2     
+ [9] getPass_0.2-2    digest_0.6.29    jsonlite_1.7.3   evaluate_0.14   
+[13] tibble_3.1.6     lifecycle_1.0.1  pkgconfig_2.0.3  rlang_0.4.12    
+[17] rstudioapi_0.13  yaml_2.2.1       xfun_0.29        fastmap_1.1.0   
+[21] httr_1.4.2       stringr_1.4.0    knitr_1.37       sass_0.4.0      
+[25] fs_1.5.2         vctrs_0.3.8      rprojroot_2.0.2  glue_1.6.0      
+[29] R6_2.5.1         processx_3.5.2   fansi_1.0.2      rmarkdown_2.11  
+[33] callr_3.7.0      magrittr_2.0.1   whisker_0.4      ps_1.6.0        
+[37] promises_1.2.0.1 htmltools_0.5.2  ellipsis_0.3.2   httpuv_1.6.5    
+[41] utf8_1.2.2       stringi_1.7.6    crayon_1.4.2    </code></pre>
 </div>
 </div>
 
