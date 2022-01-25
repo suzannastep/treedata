@@ -475,16 +475,16 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomsuzannasteptreedatatreeae28024b7edb34ee0e51ef66f7cfbf0f4a3b3d9ftargetblankae28024a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/suzannastep/treedata/tree/ae28024b7edb34ee0e51ef66f7cfbf0f4a3b3d9f" target="_blank">ae28024</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomsuzannasteptreedatatree3df06b1c6b424e60f09cc7c0104d17f4363ba78btargetblank3df06b1a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/suzannastep/treedata/tree/3df06b1c6b424e60f09cc7c0104d17f4363ba78b" target="_blank">3df06b1</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomsuzannasteptreedatatreeae28024b7edb34ee0e51ef66f7cfbf0f4a3b3d9ftargetblankae28024a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomsuzannasteptreedatatree3df06b1c6b424e60f09cc7c0104d17f4363ba78btargetblank3df06b1a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/suzannastep/treedata/tree/ae28024b7edb34ee0e51ef66f7cfbf0f4a3b3d9f" target="_blank">ae28024</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/suzannastep/treedata/tree/3df06b1c6b424e60f09cc7c0104d17f4363ba78b" target="_blank">3df06b1</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -508,6 +508,7 @@ Ignored files:
     Ignored:    data/dynversetree/.DS_Store
     Ignored:    data/dynversetree/EBMFfactors/.DS_Store
     Ignored:    figure/.DS_Store
+    Ignored:    figure/divergence_counterexample.Rmd/
     Ignored:    figure/using_EBMF.rmd/.DS_Store
     Ignored:    output/.DS_Store
     Ignored:    output/ContinuousTrees/.DS_Store
@@ -538,13 +539,6 @@ Ignored files:
     Ignored:    output/NodeTrees/NodeTree8/EBMFfactors/.DS_Store
     Ignored:    output/NodeTrees/NodeTree9/.DS_Store
     Ignored:    output/NodeTrees/NodeTree9/EBMFfactors/.DS_Store
-
-Untracked files:
-    Untracked:  analysis/.ipynb_checkpoints/Untitled-checkpoint.ipynb
-    Untracked:  analysis/Untitled.ipynb
-
-Unstaged changes:
-    Deleted:    figure/divergence_counterexample.Rmd/example.jpg
 
 </code></pre>
 <p>
@@ -583,6 +577,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/suzannastep/treedata/blob/3df06b1c6b424e60f09cc7c0104d17f4363ba78b/analysis/divergence_counterexample.Rmd" target="_blank">3df06b1</a>
+</td>
+<td>
+Sue Parkinson
+</td>
+<td>
+2022-01-24
+</td>
+<td>
+fixed typos, added a discussion
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/suzannastep/treedata/f2f0f8d6fae71fb89f5db168a21301cc49e546f3/docs/divergence_counterexample.html" target="_blank">f2f0f8d</a>
+</td>
+<td>
+Sue Parkinson
+</td>
+<td>
+2022-01-24
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -678,35 +706,32 @@ counterexample for divergence factorization
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
 <p>In Chapter 2 of Jason Willwerscheid’s thesis, he defines the divergence factorization of tree structured data where data is only located at the leaves of a tree, and proves this factorization always exists. It would be natural to try to extend this definition to data at internal nodes. However, the factorization no longer always exists in this case, as the following counterexample shows.</p>
-<p>For simplicity, I will work with the covariance matrix of the data. Assuming that <span class="math inline">\(\mathbf X\)</span> has a divergence factorization <span class="math inline">\(\mathbf X\approx \mathbf L\mathbf F^\top\)</span> with independent, mean zero factors is equivalent to assuming that <span class="math inline">\(Cov(X) \approx L L^\top\)</span> for some matrix <span class="math inline">\(L\)</span> that satisfies the following assumptions.</p>
+<p>For simplicity, I will work with the covariance matrix of the data. Assuming that <span class="math inline">\(\mathbf X\)</span> has a divergence factorization <span class="math inline">\(\mathbf X\approx \mathbf L\mathbf F^\top\)</span> with independent, mean zero factors is equivalent to assuming that <span class="math inline">\(Cov(\mathbf X) \approx \mathbf L\mathbf L^\top\)</span> for some matrix <span class="math inline">\(\mathbf L\)</span> that satisfies the following assumptions.</p>
 <ul>
-<li>The first column of <span class="math inline">\(L\)</span> is <span class="math inline">\(\lambda_1 \mathbf 1\)</span> where <span class="math inline">\(\mathbf 1\)</span> denotes the all-ones vector and <span class="math inline">\(\lambda_1&gt;0\)</span>. (This corresponds to some overall drift term.)</li>
-<li>There is exactly one additional column in <span class="math inline">\(L\)</span> for each “divergence” in the tree; that is, for each node that is not a leaf.</li>
-<li>For each column after the first, the entries are either <span class="math inline">\(\lambda_k &gt; 0\)</span>,<span class="math inline">\(-\nu_k &lt; 0\)</span>, or zero. Nodes that fall to the “left” of the divergence have loading <span class="math inline">\(\lambda_k\)</span>, and nodes that fall to the “right” of the divergence have loading <span class="math inline">\(-\nu_k\)</span>, or vice versa. Other nodes have loading zero.</li>
+<li>The first column of <span class="math inline">\(\mathbf L\)</span> is <span class="math inline">\(\lambda_1 \mathbf 1\)</span> where <span class="math inline">\(\mathbf 1\)</span> denotes the all-ones vector and <span class="math inline">\(\lambda_1&gt;0\)</span>. (This corresponds to some overall drift term.)</li>
+<li>There is exactly one additional column in <span class="math inline">\(\mathbf L\)</span> for each “divergence” in the tree; that is, for each node that is not a leaf.</li>
+<li>For each column <span class="math inline">\(k &gt; 1\)</span> after the first column, the entries are either <span class="math inline">\(\lambda_k &gt; 0\)</span>,<span class="math inline">\(-\nu_k &lt; 0\)</span>, or zero. Nodes that fall to the “left” of the divergence have loading <span class="math inline">\(\lambda_k\)</span>, and nodes that fall to the “right” of the divergence have loading <span class="math inline">\(-\nu_k\)</span>, or vice versa. Other nodes have loading zero.</li>
 </ul>
 <p>In total, a data set with <span class="math inline">\(K\)</span> non-leaf nodes will have have <span class="math inline">\(K+1\)</span> columns.</p>
 </div>
-<div id="example" class="section level2">
-<h2>Example</h2>
-<p>Here is an example of a divergence factorization for the tree shown below.</p>
-<div class="figure">
-<img src="example.jpg" alt="" />
-<p class="caption">example</p>
-</div>
+<div id="counterexample" class="section level2">
+<h2>Counterexample</h2>
+<p>We will present a tree that such that the divergence factorization does not exist when internal node data is included. The counterexample presented is for the tree shown below. There are three leaf nodes (A,B and C), one internal node (AB), and one root node (ABC). The edge lengths are also shown in the image.</p>
+<p><img src="counterexample.jpg" /></p>
 </div>
 <div id="leaf-nodes-covariance-matrix-and-divergence-factorization" class="section level2">
 <h2>Leaf Nodes Covariance Matrix and Divergence Factorization</h2>
 <p>If we only look at the leaf nodes, we can get a divergence factorization. Here is the covariance matrix.</p>
 <p><span class="math display">\[
-M = \begin{bmatrix}
+\mathbf M= \begin{bmatrix}
 2 &amp; 1 &amp; 0 \\
 1 &amp; 2 &amp; 0 \\
 0 &amp; 0 &amp; 2
 \end{bmatrix}
-\]</span> Let’s assume that a divergence factorization <span class="math inline">\(M = L L^\top\)</span> exists, and try to find <span class="math inline">\(L\)</span>. If <span class="math inline">\(L\)</span> has the desired divergence structure, then for some <span class="math inline">\(\lambda_1,\lambda_2,\nu_2,\lambda_3,\nu_3 &gt; 0\)</span>,</p>
+\]</span> Let’s assume that a divergence factorization <span class="math inline">\(\mathbf M= \mathbf L\mathbf L^\top\)</span> exists, and try to find <span class="math inline">\(\mathbf L\)</span>. If <span class="math inline">\(\mathbf L\)</span> has the desired divergence structure, then for some <span class="math inline">\(\lambda_1,\lambda_2,\nu_2,\lambda_3,\nu_3 &gt; 0\)</span>,</p>
 <div class="math">
 <p><span class="math display">\[
-L = \begin{array}{cc} &amp;
+\mathbf L= \begin{array}{cc} &amp;
 \begin{array}{ccc}  &amp; ABC &amp; AB \end{array}
 \\
 \begin{array}{ccc}
@@ -724,7 +749,7 @@ C \end{array}
 \end{array}
 \]</span></p>
 </div>
-<p>Saying that <span class="math inline">\(M = L L^\top\)</span> is equivalent to saying that <span class="math inline">\(M_{ij} = \sum_k L_{ik} L_{jk}\)</span>. This gives us the following system of equations.</p>
+<p>Saying that <span class="math inline">\(\mathbf M= \mathbf L\mathbf L^\top\)</span> is equivalent to saying that <span class="math inline">\(\mathbf M_{ij} = \sum_k \mathbf L_{ik} \mathbf L_{jk}\)</span>. This gives us the following system of equations.</p>
 <p><span class="math display">\[\begin{align*}
 0 &amp;= \lambda_1^2 - \lambda_2 \nu_2 \\
 1 &amp;= \lambda_1^2 + \lambda_2^2 - \lambda_3 \nu_3 \\
@@ -746,11 +771,10 @@ C \end{array}
 <p><span class="math display">\[
 \frac{1}{2} = \nu_2^2 - \lambda_2^2 = (\lambda_2 + \nu_2)(\nu_2 - \lambda_2) = \frac{7}{\sqrt{14}}(\nu_2 - \lambda_2).
 \]</span></p>
-<p>Thus <span class="math inline">\(\nu_2 - \lambda_2 = \frac{1}{\sqrt{14}}\)</span>. It follows that <span class="math inline">\(\nu_2 = \frac{4}{\sqrt{14}}\)</span> and <span class="math inline">\(\lambda_2 = \frac{3}{\sqrt{14}}\)</span>. Finally, <span class="math inline">\(\lambda_1^2 = \lambda_2 \nu_2 = \frac{6}{7}\)</span>.</p>
-Overall, we see that
+Then <span class="math inline">\(\nu_2 - \lambda_2 = \frac{1}{\sqrt{14}}\)</span>. It follows that <span class="math inline">\(\nu_2 = \frac{4}{\sqrt{14}}\)</span> and <span class="math inline">\(\lambda_2 = \frac{3}{\sqrt{14}}\)</span>. Finally, <span class="math inline">\(\lambda_1^2 = \lambda_2 \nu_2 = \frac{6}{7}\)</span>. Overall, we see that
 <div class="math">
 <p><span class="math display">\[
-L = \begin{array}{cc} &amp;
+\mathbf L= \begin{array}{cc} &amp;
 \begin{array}{ccc}  &amp; ABC &amp; AB \end{array}
 \\
 \begin{array}{ccc}
@@ -760,9 +784,9 @@ C \end{array}
 &amp;
 \left(
 \begin{array}{ccc}
-\frac{\sqrt{6}}{\sqrt{7}} &amp; \frac{4}{\sqrt{14}} &amp; \frac{1}{\sqrt{2}} \\
-\frac{\sqrt{6}}{\sqrt{7}} &amp; \frac{4}{\sqrt{14}} &amp; -\frac{1}{\sqrt{2}} \\
-\frac{\sqrt{6}}{\sqrt{7}} &amp; -\frac{3}{\sqrt{14}}    &amp; 0 \\
+\frac{\sqrt{6}}{\sqrt{7}} &amp; \frac{3}{\sqrt{14}} &amp; \frac{1}{\sqrt{2}} \\
+\frac{\sqrt{6}}{\sqrt{7}} &amp; \frac{3}{\sqrt{14}} &amp; -\frac{1}{\sqrt{2}} \\
+\frac{\sqrt{6}}{\sqrt{7}} &amp; -\frac{4}{\sqrt{14}}    &amp; 0 \\
 \end{array}
 \right)
 \end{array}
@@ -773,17 +797,17 @@ C \end{array}
 <h2>Adding internal nodes</h2>
 <p>If we add the internal node <span class="math inline">\(AB\)</span>, then the covariance matrix becomes</p>
 <p><span class="math display">\[
-M = \begin{bmatrix}
+\mathbf M= \begin{bmatrix}
 1 &amp; 1 &amp; 1 &amp; 0 \\
 1 &amp; 2 &amp; 1 &amp; 0 \\
 1 &amp; 1 &amp; 2 &amp; 0 \\
 0 &amp; 0 &amp; 0 &amp; 2
 \end{bmatrix}
 \]</span></p>
-If we assume that <span class="math inline">\(M_{ij} = \sum_k L_{ik} L_{jk}\)</span> and <span class="math inline">\(L\)</span> has the structure
+If we assume that <span class="math inline">\(\mathbf M_{ij} = \sum_k \mathbf L_{ik} \mathbf L_{jk}\)</span> and <span class="math inline">\(\mathbf L\)</span> has the structure
 <div class="math">
 <p><span class="math display">\[
-L = \begin{array}{cc} &amp;
+\mathbf L= \begin{array}{cc} &amp;
 \begin{array}{ccc}  &amp; ABC &amp; AB \end{array}
 \\
 \begin{array}{ccc}
@@ -812,7 +836,47 @@ C \end{array}
 2 &amp;= \lambda_1^2 + \lambda_2^2 + \lambda_3^2 \\
 2 &amp;= \lambda_1^2 + \lambda_2^2 + \nu_3^2 \\
 \end{align*}\]</span></p>
-<p>This clearly has no solutions because the second and third equations imply that <span class="math inline">\(\lambda_3 = \nu_3 = 0\)</span>, which cannot be true if the last two equations are to hold.</p>
+<p>This system has no solutions because the second and third equations imply that <span class="math inline">\(\lambda_3\nu_3 = 0\)</span>, which cannot be true if the last two equations are to hold.</p>
+<div id="intuitive-explanation" class="section level3">
+<h3>Intuitive Explanation</h3>
+<p>While the counterexample above is is a rigorous, it does not necessarily provide a satisfactory intuitive understanding as to why the divergence factorization fails.</p>
+<p>The goal of the factorization is to express the data as a linear combination of its factors <span class="math inline">\(F\)</span>. Each factor represents a direction which best separates the children of a particular node or “divergence event.” However, the children of the node in question will not necessarily diverge the same amount as the parent. Thus, it is hard to expect the loadings will be uniform among all of the nodes on the left or right.</p>
+</div>
+</div>
+<div id="discussion" class="section level2">
+<h2>Discussion</h2>
+<p>In some ways, this is a disappointing result. However, it hopefully points in the right direction. Here are my thoughts</p>
+<div id="alternative-generalizations" class="section level4">
+<h4>Alternative Generalizations</h4>
+<p>Empirically, previous work has shown that computing divergence factorizations is easier than computing drift factorizations. Although we can not naively generalize the divergence factorization to internal nodes, we could generalize it in other ways. For example, it seems likely that some sort of divergence factorizations could exist for internal node data if if we add an additional drift term for every diverge as well (i.e., you drift towards a split, and then diverge from it) However, if we are computing drift terms, we may as well just compute the entire drift factorization.</p>
+<p>Empirically, it seems that divergence factorizations could also be generalized by allowing multiple positive and negative values for each factor, instead of just one <span class="math inline">\(\lambda_k\)</span> and one <span class="math inline">\(\nu_k\)</span>. In some sense, this is reasonable because the loading on the divergence reflects how far a data point has diverged.</p>
+<p>However, our goal is to develop a simple tool for computing tree factorizations that works for both internal node and leaf node data, because it may be difficult to know a priori which case you are in. Neither of these generalizations are quite what we’re looking for.</p>
+</div>
+<div id="computing-drift-factorizations" class="section level4">
+<h4>Computing Drift Factorizations</h4>
+<p>This result suggests that computing drift factorizations may be the way to go. For instance, we know they exist with one uniform definition whether the data is from internal node or leaves. However, challenges remain in how to compute these factorizations.</p>
+<p>In part these challenges stem from the fact that the rank of the data is usually approximately the same as the number of nodes from which the data was drawn. If we only have leaf data, the rank will be much smaller than the number of terms needed to write out a drift factorization, but comparable to the number of divergence terms needed. If we have data from the all the internal nodes, the rank is (approximately) equal to the number of drift terms needed.</p>
+<p>I believe that, at least with internal node data, greedily and hierarchically adding divergence terms and then splitting them into two drift terms will likely lead to a successful algorithm for computing drift factorizations. The results in <a href="using_EBMF.html">Drift and Divergence Factorizations</a> are promising, but the drift algorithm used there needs additional refinement.</p>
+<p>My idea for an algorithm is to…</p>
+<ol style="list-style-type: decimal">
+<li>Create an empty queue (FIFO)</li>
+<li>Greedily add a divergence term</li>
+<li>Use the local false sign rate (LFSR) to detect loadings in the divergence term that we cannot conclude are nonzero and set them to zero</li>
+<li>Create two drift factors from the divergence factor, one for the positive loadings and one for negative loadings, and add them to the queue</li>
+<li>For each drift factor in the queue…
+<ol style="list-style-type: decimal">
+<li>Greedily add a divergence term that is constrained to have loadings that follow the same sparsity structure as the associated drift factor. Because EBMF is conservative in adding factors, it will not add a new divergence factor unless there is empirical evidence of additional substructure.</li>
+<li>Create two drift factors from the divergence factor, one for the positive loadings and one for negative loadings, and add them to the queue</li>
+</ol></li>
+<li>Potentially backfit this factorization while preserving the hierarchical sparsity structure. The goal of this step would be to make each drift term have loadings that are maximal/constant at the node in question and at the children of a node and nonmaximal along the edge leading up to the drift event.</li>
+</ol>
+<p>I am hopeful that this algorithm will successfully compute drift factorizations in the case of true tree-like structure. It would not be able to allow for admixtures or allow any node to have more than two children, but it should allow for data at internal nodes, leaf nodes, and along edges, as well as avoiding detecting structure that does not exist.</p>
+</div>
+<div id="philosopical-questions-about-internal-v-leaf-data" class="section level4">
+<h4>Philosopical Questions about Internal v Leaf Data</h4>
+<p>One interesting “philosophical” question this raises is whether it is easier to recover a tree from leaf data or from internal node data.</p>
+<p>On one hand, when you estimate the tree structure with internal node data, there are more ways to mess up. When there is just leaf data, you don’t necessarily explicitly estimate the location of the internal nodes, or know all the details of the relationships between them, in order to get the final relationships between the leaves correct. For example, simple methods like agglomorative clustering using single, complete, or average linkage clustering can return accurate information about the relationships between the leaves while never estimating the internal nodes.</p>
+<p>However intuitively, it seems like internal node data inherently has more topological information, and it should be easier to recover the true structure with that extra information. <a href="dynverse_testing.html">Minimal spanning trees</a> between clusters of points, for example, seem fairly successful, but are unlikely to give good results with only data at the leaves. I hope that we can develop a tool that takes advantage of the additional information inherent in internal data, but is still successful for with jsut the leaves.</p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -850,6 +914,7 @@ loaded via a namespace (and not attached):
 [33] callr_3.7.0      magrittr_2.0.1   whisker_0.4      ps_1.6.0        
 [37] promises_1.2.0.1 htmltools_0.5.2  ellipsis_0.3.2   httpuv_1.6.5    
 [41] utf8_1.2.2       stringi_1.7.6    crayon_1.4.2    </code></pre>
+</div>
 </div>
 </div>
 
