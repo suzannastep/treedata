@@ -186,11 +186,11 @@ The goal of the factorization is to express the data as a linear combination of 
 
 ## Discussion
 
-In some ways, this is a disappointing result. However, it hopefully points in the right direction. Here are my thoughts 
+In some ways, this is a disappointing result. However, it hopefully points in the right direction. Here are my thoughts.
 
 #### Alternative Generalizations
 
-Empirically, previous work has shown that computing divergence factorizations is easier than computing drift factorizations. Although we can not naively generalize the divergence factorization to internal nodes, we could generalize it in other ways. For example, it seems likely that some sort of divergence factorizations could exist for internal node data if if we add an additional drift term for every diverge as well (i.e., you drift towards a split, and then diverge from it) However, if we are computing drift terms, we may as well just compute the entire drift factorization.
+Empirically, previous work has shown that computing divergence factorizations is easier than computing drift factorizations. Although we can not naively generalize the divergence factorization to internal nodes, we could generalize it in other ways. For example, it seems likely that some sort of divergence factorizations could exist for internal node data if if we add an additional drift term for every diverge as well (i.e., you drift towards a split, and then diverge from it). However, if we are computing drift terms, we may as well just compute the entire drift factorization.
 
 Empirically, it seems that divergence factorizations could also be generalized by allowing multiple positive and negative values for each factor, instead of just one $\lambda_k$ and one $\nu_k$. In some sense, this is reasonable because the loading on the divergence reflects how far a data point has diverged.
 
@@ -223,5 +223,5 @@ One interesting "philosophical" question this raises is whether it is easier to 
 
 On one hand, when you estimate the tree structure with internal node data, there are more ways to mess up. When there is just leaf data, you don't necessarily explicitly estimate the location of the internal nodes, or know all the details of the relationships between them, in order to get the final relationships between the leaves correct. For example, simple methods like agglomorative clustering using single, complete, or average linkage clustering can return accurate information about the relationships between the leaves while never estimating the internal nodes.
 
-However intuitively, it seems like internal node data inherently has more topological information, and it should be easier to recover the true structure with that extra information. [Minimal spanning trees](dynverse_testing.html) between clusters of points, for example, seem fairly successful, but are unlikely to give good results with only data at the leaves. I hope that we can develop a tool that takes advantage of the additional information inherent in internal data, but is still successful for with jsut the leaves.
+However intuitively, it seems like internal node data inherently has more topological information, and it should be easier to recover the true structure with that extra information. [Minimal spanning trees](dynverse_testing.html) between clusters of points, for example, seem fairly successful, but are unlikely to give good results with only data at the leaves. I hope that we can develop a tool that takes advantage of the additional information inherent in internal data, but is still successful for with just the leaves.
 
