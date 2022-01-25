@@ -14,6 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 \newcommand{\loadings}{\mathbf L}
 \newcommand{\factors}{\mathbf F}
 \newcommand{\R}{\mathbb R}
+\newcommand{\cov}{\mathbf M}
 \newcommand{\ones}{\mathbf 1}
 
 ## Introduction
@@ -21,36 +22,36 @@ knitr::opts_chunk$set(echo = TRUE)
 In Chapter 2 of Jason Willwerscheid's thesis, he defines the divergence factorization
  of tree structured data where data is only located at the leaves of a tree, and proves this factorization always exists. It would be natural to try to extend this definition to data at internal nodes. However, the factorization no longer always exists in this case, as the following counterexample shows.
  
-For simplicity, I will work with the covariance matrix of the data. Assuming that $\data$ has a divergence factorization $\data \approx \loadings \factors^\top$ with independent, mean zero factors is equivalent to assuming that $Cov(X) \approx L L^\top$ for some matrix $L$ that satisfies the following assumptions.
+For simplicity, I will work with the covariance matrix of the data. Assuming that $\data$ has a divergence factorization $\data \approx \loadings \factors^\top$ with independent, mean zero factors is equivalent to assuming that $Cov(\data) \approx \loadings \loadings^\top$ for some matrix $\loadings$ that satisfies the following assumptions.
 
-* The first column of $L$ is $\lambda_1 \ones$ where $\ones$ denotes the all-ones vector and $\lambda_1>0$. (This corresponds to some overall drift term.)
-* There is exactly one additional column in $L$ for each "divergence" in the tree; that is, for each node that is not a leaf.
-* For each column after the first, the entries are either $\lambda_k > 0$,$-\nu_k < 0$, or zero. Nodes that fall to the "left" of the divergence have loading $\lambda_k$, and nodes  that fall to the "right" of the divergence have loading $-\nu_k$, or vice versa. Other nodes have loading zero.
+* The first column of $\loadings$ is $\lambda_1 \ones$ where $\ones$ denotes the all-ones vector and $\lambda_1>0$. (This corresponds to some overall drift term.)
+* There is exactly one additional column in $\loadings$ for each "divergence" in the tree; that is, for each node that is not a leaf.
+* For each column $k > 1$ after the first column, the entries are either $\lambda_k > 0$,$-\nu_k < 0$, or zero. Nodes that fall to the "left" of the divergence have loading $\lambda_k$, and nodes  that fall to the "right" of the divergence have loading $-\nu_k$, or vice versa. Other nodes have loading zero.
 
 In total, a data set with $K$ non-leaf nodes will have have $K+1$ columns.
 
-## Example
+## Counterexample
 
-Here is an example of a divergence factorization for the tree shown below.
+We will present a tree that such that the divergence factorization does not exist when internal node data is included. The counterexample presented is for the tree shown below. There are three leaf nodes (A,B and C), one internal node (AB), and one root node (ABC). The edge lengths are also shown in the image.    
 
-![example](example.jpg)
+![](counterexample.jpg)
 
 ## Leaf Nodes Covariance Matrix and Divergence Factorization
 
 If we only look at the leaf nodes, we can get a divergence factorization. Here is the covariance matrix.
 
 $$
-M = \begin{bmatrix}
+\cov = \begin{bmatrix}
 2 & 1 & 0 \\
 1 & 2 & 0 \\
 0 & 0 & 2
 \end{bmatrix}
 $$
-Let's assume that a divergence factorization $M = L L^\top$ exists, and try to find $L$. If $L$ has the desired divergence structure, then for some $\lambda_1,\lambda_2,\nu_2,\lambda_3,\nu_3 > 0$,
+Let's assume that a divergence factorization $\cov = \loadings \loadings^\top$ exists, and try to find $\loadings$. If $\loadings$ has the desired divergence structure, then for some $\lambda_1,\lambda_2,\nu_2,\lambda_3,\nu_3 > 0$,
 
 <div class="math">
 $$
-L = \begin{array}{cc} &
+\loadings = \begin{array}{cc} &
 \begin{array}{ccc}  & ABC & AB \end{array}
 \\
 \begin{array}{ccc}
@@ -69,7 +70,7 @@ C \end{array}
 $$
 </div>
 
-Saying that $M = L L^\top$ is equivalent to saying that $M_{ij} = \sum_k L_{ik} L_{jk}$. This gives us the following system of equations.
+Saying that $\cov = \loadings \loadings^\top$ is equivalent to saying that $\cov_{ij} = \sum_k \loadings_{ik} \loadings_{jk}$. This gives us the following system of equations.
 
 \begin{align*}
 0 &= \lambda_1^2 - \lambda_2 \nu_2 \\
@@ -103,12 +104,13 @@ $$
 \frac{1}{2} = \nu_2^2 - \lambda_2^2 = (\lambda_2 + \nu_2)(\nu_2 - \lambda_2) = \frac{7}{\sqrt{14}}(\nu_2 - \lambda_2).
 $$
 
-Thus $\nu_2 - \lambda_2 = \frac{1}{\sqrt{14}}$. It follows that $\nu_2 = \frac{4}{\sqrt{14}}$ and $\lambda_2 = \frac{3}{\sqrt{14}}$. Finally, $\lambda_1^2 = \lambda_2 \nu_2 = \frac{6}{7}$. 
-
+Then $\nu_2 - \lambda_2 = \frac{1}{\sqrt{14}}$. 
+It follows that $\nu_2 = \frac{4}{\sqrt{14}}$ and $\lambda_2 = \frac{3}{\sqrt{14}}$. 
+Finally, $\lambda_1^2 = \lambda_2 \nu_2 = \frac{6}{7}$. 
 Overall, we see that
 <div class="math">
 $$
-L = \begin{array}{cc} &
+\loadings = \begin{array}{cc} &
 \begin{array}{ccc}  & ABC & AB \end{array}
 \\
 \begin{array}{ccc}
@@ -118,9 +120,9 @@ C \end{array}
 &
 \left(
 \begin{array}{ccc}
-\frac{\sqrt{6}}{\sqrt{7}} & \frac{4}{\sqrt{14}} & \frac{1}{\sqrt{2}} \\
-\frac{\sqrt{6}}{\sqrt{7}} & \frac{4}{\sqrt{14}} & -\frac{1}{\sqrt{2}} \\
-\frac{\sqrt{6}}{\sqrt{7}} & -\frac{3}{\sqrt{14}}    & 0 \\
+\frac{\sqrt{6}}{\sqrt{7}} & \frac{3}{\sqrt{14}} & \frac{1}{\sqrt{2}} \\
+\frac{\sqrt{6}}{\sqrt{7}} & \frac{3}{\sqrt{14}} & -\frac{1}{\sqrt{2}} \\
+\frac{\sqrt{6}}{\sqrt{7}} & -\frac{4}{\sqrt{14}}    & 0 \\
 \end{array}
 \right)
 \end{array}
@@ -132,7 +134,7 @@ $$
 If we add the internal node $AB$, then the covariance matrix becomes 
 
 $$
-M = \begin{bmatrix}
+\cov = \begin{bmatrix}
 1 & 1 & 1 & 0 \\
 1 & 2 & 1 & 0 \\
 1 & 1 & 2 & 0 \\
@@ -140,10 +142,10 @@ M = \begin{bmatrix}
 \end{bmatrix}
 $$
 
-If we assume that $M_{ij} = \sum_k L_{ik} L_{jk}$ and $L$ has the structure 
+If we assume that $\cov_{ij} = \sum_k \loadings_{ik} \loadings_{jk}$ and $\loadings$ has the structure 
 <div class="math">
 $$
-L = \begin{array}{cc} &
+\loadings = \begin{array}{cc} &
 \begin{array}{ccc}  & ABC & AB \end{array}
 \\
 \begin{array}{ccc}
@@ -174,4 +176,52 @@ then we get the same system of equations with the additional restriction that $\
 2 &= \lambda_1^2 + \lambda_2^2 + \nu_3^2 \\
 \end{align*}
 
-This clearly has no solutions because the second and third equations imply that $\lambda_3 = \nu_3 = 0$, which cannot be true if the last two equations are to hold.
+This system has no solutions because the second and third equations imply that $\lambda_3\nu_3 = 0$, which cannot be true if the last two equations are to hold.
+
+### Intuitive Explanation
+
+While the counterexample above is is a rigorous, it does not necessarily provide a satisfactory intuitive understanding as to why the divergence factorization fails.
+
+The goal of the factorization is to express the data as a linear combination of its factors $F$. Each factor represents a direction which best separates the children of a particular node or "divergence event." However, the children of the node in question will not necessarily diverge the same amount as the parent. Thus, it is hard to expect the loadings will be uniform among all of the nodes on the left or right. 
+
+## Discussion
+
+In some ways, this is a disappointing result. However, it hopefully points in the right direction. Here are my thoughts 
+
+#### Alternative Generalizations
+
+Empirically, previous work has shown that computing divergence factorizations is easier than computing drift factorizations. Although we can not naively generalize the divergence factorization to internal nodes, we could generalize it in other ways. For example, it seems likely that some sort of divergence factorizations could exist for internal node data if if we add an additional drift term for every diverge as well (i.e., you drift towards a split, and then diverge from it) However, if we are computing drift terms, we may as well just compute the entire drift factorization.
+
+Empirically, it seems that divergence factorizations could also be generalized by allowing multiple positive and negative values for each factor, instead of just one $\lambda_k$ and one $\nu_k$. In some sense, this is reasonable because the loading on the divergence reflects how far a data point has diverged.
+
+However, our goal is to develop a simple tool for computing tree factorizations that works for both internal node and leaf node data, because it may be difficult to know a priori which case you are in. Neither of these generalizations are quite what we're looking for.
+
+#### Computing Drift Factorizations
+
+This result suggests that computing drift factorizations may be the way to go. For instance, we know they exist with one uniform definition whether the data is from internal node or leaves. However, challenges remain in how to compute these factorizations. 
+
+In part these challenges stem from the fact that the rank of the data is usually approximately the same as the number of nodes from which the data was drawn. If we only have leaf data, the rank will be much smaller than the number of terms needed to write out a drift factorization, but comparable to the number of divergence terms needed. If we have data from the all the internal nodes, the rank is (approximately) equal to the number of drift terms needed. 
+
+I believe that, at least with internal node data, greedily and hierarchically adding divergence terms and then splitting them into two drift terms will likely lead to a successful algorithm for computing drift factorizations. The results in [Drift and Divergence Factorizations](using_EBMF.html) are promising, but the drift algorithm used there needs additional refinement.
+
+My idea for an algorithm is to...
+
+1. Create an empty queue (FIFO)
+1. Greedily add a divergence term
+1. Use the local false sign rate (LFSR) to detect loadings in the divergence term that we cannot conclude are nonzero and set them to zero
+1. Create two drift factors from the divergence factor, one for the positive loadings and one for negative loadings, and add them to the queue
+1. For each drift factor in the queue...
+    1. Greedily add a divergence term that is constrained to have loadings that follow the same sparsity structure as the associated drift factor. Because EBMF is conservative in adding factors, it will not add a new divergence factor unless there is empirical evidence of additional substructure.
+    1. Create two drift factors from the divergence factor, one for the positive loadings and one for negative loadings, and add them to the queue
+1. Potentially backfit this factorization while preserving the hierarchical sparsity structure. The goal of this step would be to make each drift term have loadings that are maximal/constant at the node in question and at the children of a node and nonmaximal along the edge leading up to the drift event.
+
+I am hopeful that this algorithm will successfully compute drift factorizations in the case of true tree-like structure. It would not be able to allow for admixtures or allow any node to have more than two children, but it should allow for data at internal nodes, leaf nodes, and along edges, as well as avoiding detecting structure that does not exist.
+
+#### Philosopical Questions about Internal v Leaf Data
+
+One interesting "philosophical" question this raises is whether it is easier to recover a tree from leaf data or from internal node data.
+
+On one hand, when you estimate the tree structure with internal node data, there are more ways to mess up. When there is just leaf data, you don't necessarily explicitly estimate the location of the internal nodes, or know all the details of the relationships between them, in order to get the final relationships between the leaves correct. For example, simple methods like agglomorative clustering using single, complete, or average linkage clustering can return accurate information about the relationships between the leaves while never estimating the internal nodes.
+
+However intuitively, it seems like internal node data inherently has more topological information, and it should be easier to recover the true structure with that extra information. [Minimal spanning trees](dynverse_testing.html) between clusters of points, for example, seem fairly successful, but are unlikely to give good results with only data at the leaves. I hope that we can develop a tool that takes advantage of the additional information inherent in internal data, but is still successful for with jsut the leaves.
+
