@@ -475,16 +475,16 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomsuzannasteptreedatatree3df06b1c6b424e60f09cc7c0104d17f4363ba78btargetblank3df06b1a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/suzannastep/treedata/tree/3df06b1c6b424e60f09cc7c0104d17f4363ba78b" target="_blank">3df06b1</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomsuzannasteptreedatatree2ce7a85816c6c2e4bde85158ffa21845e4c27af2targetblank2ce7a85a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/suzannastep/treedata/tree/2ce7a85816c6c2e4bde85158ffa21845e4c27af2" target="_blank">2ce7a85</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomsuzannasteptreedatatree3df06b1c6b424e60f09cc7c0104d17f4363ba78btargetblank3df06b1a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomsuzannasteptreedatatree2ce7a85816c6c2e4bde85158ffa21845e4c27af2targetblank2ce7a85a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/suzannastep/treedata/tree/3df06b1c6b424e60f09cc7c0104d17f4363ba78b" target="_blank">3df06b1</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/suzannastep/treedata/tree/2ce7a85816c6c2e4bde85158ffa21845e4c27af2" target="_blank">2ce7a85</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -577,6 +577,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/suzannastep/treedata/blob/2ce7a85816c6c2e4bde85158ffa21845e4c27af2/analysis/divergence_counterexample.Rmd" target="_blank">2ce7a85</a>
+</td>
+<td>
+Sue Parkinson
+</td>
+<td>
+2022-01-24
+</td>
+<td>
+fixed more typos
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/suzannastep/treedata/b963d13bbdadcf5c5fec89b38392177fd7b91082/docs/divergence_counterexample.html" target="_blank">b963d13</a>
+</td>
+<td>
+Sue Parkinson
+</td>
+<td>
+2022-01-24
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -845,10 +879,10 @@ C \end{array}
 </div>
 <div id="discussion" class="section level2">
 <h2>Discussion</h2>
-<p>In some ways, this is a disappointing result. However, it hopefully points in the right direction. Here are my thoughts</p>
+<p>In some ways, this is a disappointing result. However, it hopefully points in the right direction. Here are my thoughts.</p>
 <div id="alternative-generalizations" class="section level4">
 <h4>Alternative Generalizations</h4>
-<p>Empirically, previous work has shown that computing divergence factorizations is easier than computing drift factorizations. Although we can not naively generalize the divergence factorization to internal nodes, we could generalize it in other ways. For example, it seems likely that some sort of divergence factorizations could exist for internal node data if if we add an additional drift term for every diverge as well (i.e., you drift towards a split, and then diverge from it) However, if we are computing drift terms, we may as well just compute the entire drift factorization.</p>
+<p>Empirically, previous work has shown that computing divergence factorizations is easier than computing drift factorizations. Although we can not naively generalize the divergence factorization to internal nodes, we could generalize it in other ways. For example, it seems likely that some sort of divergence factorizations could exist for internal node data if if we add an additional drift term for every diverge as well (i.e., you drift towards a split, and then diverge from it). However, if we are computing drift terms, we may as well just compute the entire drift factorization.</p>
 <p>Empirically, it seems that divergence factorizations could also be generalized by allowing multiple positive and negative values for each factor, instead of just one <span class="math inline">\(\lambda_k\)</span> and one <span class="math inline">\(\nu_k\)</span>. In some sense, this is reasonable because the loading on the divergence reflects how far a data point has diverged.</p>
 <p>However, our goal is to develop a simple tool for computing tree factorizations that works for both internal node and leaf node data, because it may be difficult to know a priori which case you are in. Neither of these generalizations are quite what we’re looking for.</p>
 </div>
@@ -876,7 +910,7 @@ C \end{array}
 <h4>Philosopical Questions about Internal v Leaf Data</h4>
 <p>One interesting “philosophical” question this raises is whether it is easier to recover a tree from leaf data or from internal node data.</p>
 <p>On one hand, when you estimate the tree structure with internal node data, there are more ways to mess up. When there is just leaf data, you don’t necessarily explicitly estimate the location of the internal nodes, or know all the details of the relationships between them, in order to get the final relationships between the leaves correct. For example, simple methods like agglomorative clustering using single, complete, or average linkage clustering can return accurate information about the relationships between the leaves while never estimating the internal nodes.</p>
-<p>However intuitively, it seems like internal node data inherently has more topological information, and it should be easier to recover the true structure with that extra information. <a href="dynverse_testing.html">Minimal spanning trees</a> between clusters of points, for example, seem fairly successful, but are unlikely to give good results with only data at the leaves. I hope that we can develop a tool that takes advantage of the additional information inherent in internal data, but is still successful for with jsut the leaves.</p>
+<p>However intuitively, it seems like internal node data inherently has more topological information, and it should be easier to recover the true structure with that extra information. <a href="dynverse_testing.html">Minimal spanning trees</a> between clusters of points, for example, seem fairly successful, but are unlikely to give good results with only data at the leaves. I hope that we can develop a tool that takes advantage of the additional information inherent in internal data, but is still successful for with just the leaves.</p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
