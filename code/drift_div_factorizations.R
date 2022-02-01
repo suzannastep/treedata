@@ -6,9 +6,11 @@ library(fields)
 library(dyno)
 library(dequer)
 
-#TODO document this code
-
-#just a helper for debugging
+#' Helper function for debugging. Shows how many samples with each label type are activated on 
+#' a particular loading
+#' 
+#' @param tree tree object; output of form_tree_from_file that has been used in computing a trajectory
+#' @param loading the loading in question 
 get_sums_by_label <- function(tree,loading){
   summary <- as.data.frame(table(tree$csv$Labels))
   summary$NumActivated <- 0
@@ -21,24 +23,43 @@ get_sums_by_label <- function(tree,loading){
   return(summary)
 }
 
-#helper function that adds one factor
+#' Helper function that adds one factor to the flash object.
+#' 
+#' @param dat the data matrix
+#' @param loading binary initial loading to specify the sparsity pattern in the loading
+#' @param fl flash object to add the factor to
+#' @param prior prior for loadings
+#' @param Fprior prior for the factors. Defaults to a normal prior.
+#' @returns a new flash object with a new factor such that the associated loading matches the 
+#' sparsity pattern from loading
 add_factor <- function(dat,loading,fl,prior,Fprior){
   K <- fl$n.factors
+  #initializes factor to the least squares solution
   ls.soln  <- t(crossprod(loading,  dat - fitted(fl))/sum(loading))
   EF <- list(loading, ls.soln)
+  #create new flash object
   next_fl <- fl %>%
     flash.init.factors(
       EF,
       prior.family = c(prior,Fprior)
     ) %>%
-    flash.fix.loadings(kset = K + 1, mode = 1L, is.fixed = (EF[[1]] == 0)) %>%
+    flash.fix.loadings(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %>%
+    #only backfit the most recently added factor
     flash.backfit(kset = K + 1)
   return(next_fl)
 }
 
-#helper function that gets one divergence factor
+#' Helper function that returns the loading from one additional divergence factor
+#' 
+#' @param dat the data matrix
+#' @param loading binary initial loading to specify known sparsity pattern in the loading (e.g. parental sparsity)
+#' @param fl flash object containing the current fit
+#' @param divprior divergence prior for loadings
+#' @param Fprior prior for the factors. Defaults to a normal prior.
+#' @returns the new posterior loading for the additional divergence factor
 get_divergence_factor <- function(dat,loading,fl,divprior,Fprior){
   K <- fl$n.factors
+  #initializes factor to the least squares solution
   ls.soln  <- t(crossprod(loading,  dat - fitted(fl))/sum(loading))
   EF <- list(loading, ls.soln)
   next_fl <- fl %>%
@@ -51,8 +72,17 @@ get_divergence_factor <- function(dat,loading,fl,divprior,Fprior){
   return(next_fl$loadings.pm[[1]][,K+1])
 }
 
-#fits a drift factorization to the data
-drift_fit <- function(tree,dat,filename,
+#' Fits a drift factorization to the data
+#' 
+#' @param tree tree object; output of form_tree_from_file. 
+#' @param divprior prior for intermediate divergence loadings. Defaults to a point Laplace prior.
+#' @param driftprior prior for drift loadings. Defaults to a point exponential prior.
+#' @param Fprior prior for the factors. Defaults to a normal prior.
+#' @param Kmax maximum number of factors to add.
+#' @param min_pve If the pve for a factor is less than this tolerance, the factor is rejected
+#' @param verbose.lvl The level of verbosity of the function
+#' @param eps Tolerance for nonzero values in the loadings. 
+drift_fit <- function(tree,dat,
                     divprior = prior.point.laplace(),
                     driftprior = as.prior(ebnm.fn = ebnm_point_exponential,sign=1),
                     Fprior = prior.normal(),
@@ -127,24 +157,22 @@ drift_fit <- function(tree,dat,filename,
     if (verbose.lvl > 0) {
       cat("K:", K, "\n")
     }
-
-    # image.plot(fl$loadings.pm[[1]],xlab = fl$n.factors)
   }
-
-  L <- fl$loadings.pm[[1]]
-  F <- fl$loadings.pm[[2]]
-  scale <- fl$loadings.scale
-
-  write.table(L,file=paste(filename,"L.csv",sep=''),sep=',')
-  write.table(F,file=paste(filename,"F.csv",sep=''),sep=',')
-  write.table(scale,file=paste(filename,"scale.csv",sep=''),sep=',')
-  write.table(fl$pve,file=paste(filename,"pve.csv",sep=''),sep=',')
 
   return(fl)
 }
 
-#fits a divergence factorization to the data
-div_fit <- function(tree,dat,filename,
+#' Fits a divergence factorization to the data
+#' 
+#' @param tree tree object; output of form_tree_from_file. 
+#' @param divprior prior for intermediate divergence loadings. Defaults to a point Laplace prior.
+#' @param driftprior prior for drift loadings. Defaults to a point exponential prior.
+#' @param Fprior prior for the factors. Defaults to a normal prior.
+#' @param Kmax maximum number of factors to add.
+#' @param min_pve If the pve for a factor is less than this tolerance, the factor is rejected
+#' @param verbose.lvl The level of verbosity of the function
+#' @param eps Tolerance for nonzero values in the loadings. 
+div_fit <- function(tree,
                       divprior = prior.point.laplace(),
                       driftprior = as.prior(ebnm.fn = ebnm_point_exponential,sign=1),
                       Fprior = prior.normal(),
@@ -152,6 +180,7 @@ div_fit <- function(tree,dat,filename,
                       min_pve = 0,
                       verbose.lvl = 0,
                       eps=1e-2) {
+  dat <- tree$matrix
   #the first loading will be the all-ones vector
   ones <- matrix(1, nrow = nrow(dat), ncol = 1)
   #first factor will be least sq soln: argmin_f ||Y - ones t(f)||_F^2
@@ -226,29 +255,24 @@ div_fit <- function(tree,dat,filename,
     if (verbose.lvl > 0) {
       cat("K:", K, "\n")
     }
-    # image.plot(fl$loadings.pm[[1]],xlab = fl$n.factors)
   }
-
-  L <- fl$loadings.pm[[1]]
-  F <- fl$loadings.pm[[2]]
-  scale <- fl$loadings.scale
-
-  write.table(L,file=paste(filename,"L.csv",sep=''),sep=',')
-  write.table(F,file=paste(filename,"F.csv",sep=''),sep=',')
-  write.table(scale,file=paste(filename,"scale.csv",sep=''),sep=',')
-  write.table(fl$pve,file=paste(filename,"pve.csv",sep=''),sep=',')
 
   return(fl)
 }
 
-#fits a divergence factorization to the covariance matrix
-div_cov_fit <- function(covmat, filename, prior = prior.point.laplace(), Kmax = 1000) {
-  fl <- div_fit(covmat, filename, prior, Kmax)
+#' fits a divergence factorization to the covariance matrix
+#' this function is less well tested
+#' 
+#' @param covmat the covariance matrix
+#' @param prior prop for the loadings. Defaults to a point Laplace prior.
+#' @param Kmax the maximum number of factors to add. Defaults to 1000 
+div_cov_fit <- function(covmat, prior = prior.point.laplace(), Kmax = 1000) {
+  fl <- div_fit(covmat, prior, Kmax)
   s2 <- max(0, mean(diag(covmat) - diag(fitted(fl))))
   s2_diff <- Inf
   while(s2 > 0 && abs(s2_diff - 1) > 1e-4) {
     covmat_minuss2 <- covmat - diag(rep(s2, ncol(covmat)))
-    fl <- div_fit(covmat_minuss2,filename, prior, Kmax)
+    fl <- div_fit(covmat_minuss2, prior, Kmax)
     old_s2 <- s2
     s2 <- max(0, mean(diag(covmat) - diag(fitted(fl))))
     s2_diff <- s2 / old_s2
@@ -259,6 +283,17 @@ div_cov_fit <- function(covmat, filename, prior = prior.point.laplace(), Kmax = 
   return(fl)
 }
 
+#' Forms a tree object from a csv file
+#' 
+#' @param filename string containing the path to the csv file
+#' @returns a tree vector with the following attributes.
+#' csv: the data from the csv file
+#' raw: selects columns Raw0:Raw499 in order to avoid the dimensionality-reduced data
+#' matrix: the raw data cast to a matrix
+#' dimred: the tsne dimensionality reducition from the csv file
+#' counts: the "raw counts" matrix, which is computed as min(0,round(2**(tree$raw)-1))
+#' dataset: counts and matrix wraped for dynverse functions, with prior information that Row0 is the starting cell
+#' trajectory: an empty vector for saving trajectory results
 form_tree_from_file <- function(filename){
   tree <- vector(mode="list")
   tree$csv <- read.csv(filename,row.names=1)
@@ -276,24 +311,28 @@ form_tree_from_file <- function(filename){
   )
   tree$dataset <- add_prior_information(
     tree$dataset,
-    start_id = "Row0",
-    start_n = 1,
-    end_n = 4,
+    start_id = "Row0"
   )
   tree$trajectory <- vector(mode="list")
   return(tree)
 }
 
-run_methods <- function(tree,outfile,Kmax,eps){
+#' Run drift and divergence factorizations
+#' 
+#' @param tree a vector that is interpreted as a tree object; the output of form_tree_from_file
+#' @param Kmax parameter for the maximum number of factors to add
+#' @param eps tolerance for when values are nonzero
+#' 
+#' This function does not return anything, but instead saves the results into tree$trajectory
+run_methods <- function(tree,Kmax,eps){
   #drift factorization method
   tree$trajectory$drift <- drift_fit(tree,
                                      tree$matrix,
-                                     paste(outfile,"drift",sep=""),
                                      Kmax = Kmax,
                                      eps = eps)
+  #divergence factorization method
   tree$trajectory$div <- div_fit(tree,
                                      tree$matrix,
-                                     paste(outfile,"div",sep=""),
                                      Kmax = Kmax,
                                      eps = eps)
   return(tree)
