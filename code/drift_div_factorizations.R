@@ -82,7 +82,7 @@ get_divergence_factor <- function(dat,loading,fl,divprior,Fprior){
 #' @param min_pve If the pve for a factor is less than this tolerance, the factor is rejected
 #' @param verbose.lvl The level of verbosity of the function
 #' @param eps Tolerance for nonzero values in the loadings. 
-drift_fit <- function(tree,dat,
+drift_fit <- function(tree,
                     divprior = prior.point.laplace(),
                     driftprior = as.prior(ebnm.fn = ebnm_point_exponential,sign=1),
                     Fprior = prior.normal(),
@@ -90,6 +90,7 @@ drift_fit <- function(tree,dat,
                     min_pve = 0,
                     verbose.lvl = 0,
                     eps=1e-2) {
+  dat <- tree$matrix
   #the first loading will be the all-ones vector
   ones <- matrix(1, nrow = nrow(dat), ncol = 1)
   #first factor will be least sq soln: argmin_f ||Y - ones t(f)||_F^2
@@ -141,7 +142,7 @@ drift_fit <- function(tree,dat,
     sminus <- matrix(1L * (current_divergence < -eps), ncol = 1)
     if (sum(sminus) > 0 && K < Kmax) {
       if (verbose.lvl > 0) {
-        cat(get_sums_by_label(tree,splus))
+        cat(get_sums_by_label(tree,sminus))
       }
       #add drift loading
       next_fl <- add_factor(dat,sminus,fl,driftprior,Fprior)
@@ -213,6 +214,7 @@ div_fit <- function(tree,
     current_divergence <- pop(divergence_queue)
 
     #add drift loading
+    # TODO I think this is why the divergence factorization plots look weird?
     snonzero <- matrix(1L * (abs(current_divergence) > eps), ncol = 1)
     if (sum(snonzero) > 0 && (K != 2)) {
       if (verbose.lvl > 0) {
