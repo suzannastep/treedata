@@ -1,0 +1,17 @@
+---
+title: "Tree Algorithm using LFSR"
+author: "Sue Parkinson"
+date: "2022-02-01"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Introduction
+
+```{r message=FALSE}
+source("code/fileIO_plotting.R")
+source("code/lfsr_algorithm.R")
+```
+
+# TODO full write up
