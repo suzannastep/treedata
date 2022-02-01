@@ -165,7 +165,7 @@ drift_fit <- function(tree,
 
 #' Fits a divergence factorization to the data
 #' 
-#' @param tree tree object; output of form_tree_from_file. 
+#' @param tree tree object; output of form_tree_from_file from fileIO_plotting.R. 
 #' @param divprior prior for intermediate divergence loadings. Defaults to a point Laplace prior.
 #' @param driftprior prior for drift loadings. Defaults to a point exponential prior.
 #' @param Fprior prior for the factors. Defaults to a normal prior.
@@ -285,43 +285,9 @@ div_cov_fit <- function(covmat, prior = prior.point.laplace(), Kmax = 1000) {
   return(fl)
 }
 
-#' Forms a tree object from a csv file
-#' 
-#' @param filename string containing the path to the csv file
-#' @returns a tree vector with the following attributes.
-#' csv: the data from the csv file
-#' raw: selects columns Raw0:Raw499 in order to avoid the dimensionality-reduced data
-#' matrix: the raw data cast to a matrix
-#' dimred: the tsne dimensionality reducition from the csv file
-#' counts: the "raw counts" matrix, which is computed as min(0,round(2**(tree$raw)-1))
-#' dataset: counts and matrix wraped for dynverse functions, with prior information that Row0 is the starting cell
-#' trajectory: an empty vector for saving trajectory results
-form_tree_from_file <- function(filename){
-  tree <- vector(mode="list")
-  tree$csv <- read.csv(filename,row.names=1)
-  tree$raw <- tree$csv %>%
-    select(Raw0:Raw499)
-  tree$matrix <- as.matrix(tree$raw)
-  tree$dimred <- tree$csv %>%
-    select(tsne0:tsne1)
-  #As input, dynwrap requires raw counts and normalized (log2) expression data.
-  tree$counts <- round(2**(tree$raw)-1)
-  tree$counts[tree$counts<0] <- 0
-  tree$dataset <- wrap_expression(
-    expression = tree$matrix,
-    counts = as.matrix(tree$counts)
-  )
-  tree$dataset <- add_prior_information(
-    tree$dataset,
-    start_id = "Row0"
-  )
-  tree$trajectory <- vector(mode="list")
-  return(tree)
-}
-
 #' Run drift and divergence factorizations
 #' 
-#' @param tree a vector that is interpreted as a tree object; the output of form_tree_from_file
+#' @param tree a vector that is interpreted as a tree object; the output of form_tree_from_file from fileIO_plotting.R
 #' @param Kmax parameter for the maximum number of factors to add
 #' @param eps tolerance for when values are nonzero
 #' 
