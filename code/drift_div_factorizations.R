@@ -67,7 +67,7 @@ get_divergence_factor <- function(dat,loading,fl,divprior,Fprior){
       EF,
       prior.family = c(divprior,Fprior)
     ) %>%
-    flash.fix.loadings(kset = K + 1, mode = 1L, is.fixed = (EF[[1]] == 0)) %>%
+    flash.fix.loadings(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %>%
     flash.backfit(kset = K + 1)
   return(next_fl$loadings.pm[[1]][,K+1])
 }

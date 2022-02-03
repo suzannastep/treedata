@@ -7,6 +7,35 @@ library(dyno)
 library(dequer)
 source("code/drift_div_factorizations.R")
 
+#' Helper function that returns the loading from one additional divergence factor.
+#' Using the local false sign rate, it sets to zero those loadings for which we cannot be
+#' confident of the sign.
+#' 
+#' @param dat the data matrix
+#' @param lfsr_tol Tolerance for local false sign rate
+#' @param loading binary initial loading to specify known sparsity pattern in the loading (e.g. parental sparsity)
+#' @param fl flash object containing the current fit
+#' @param divprior divergence prior for loadings
+#' @param Fprior prior for the factors. Defaults to a normal prior.
+#' @returns the new posterior loading for the additional divergence factor
+get_divergence_factor_lfsr <- function(dat,lfsr_tol,loading,fl,divprior,Fprior){
+    K <- fl$n.factors
+    #initializes factor to the least squares solution
+    ls.soln  <- t(crossprod(loading,  dat - fitted(fl))/sum(loading))
+    EF <- list(loading, ls.soln)
+    next_fl <- fl %>%
+        flash.init.factors(
+            EF,
+            prior.family = c(divprior,Fprior)
+        ) %>%
+        flash.fix.loadings(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %>%
+        flash.backfit(kset = K + 1)
+    loading <- next_fl$loadings.pm[[1]][,K+1]
+    lfsr <- next_fl$loadings.lfsr[[1]][,K+1]
+    loading[lfsr > lfsr_tol] <- 0
+    return(loading)
+}
+
 #' Fits a drift factorization to the data and returns the associated flashier object
 #' 
 #' @param tree tree object; output of form_tree_from_file. 
@@ -22,7 +51,7 @@ lfsr_algorithm <- function(tree,
                       driftprior = as.prior(ebnm.fn = ebnm_point_exponential,sign=1),
                       Fprior = prior.normal(),
                       Kmax = Inf,
-                      lfsr_tol = 0.95,
+                      lfsr_tol = 1e-3,
                       min_pve = 0,
                       verbose.lvl = 0) {
     dat <- tree$matrix
@@ -44,36 +73,35 @@ lfsr_algorithm <- function(tree,
     
     #add first divergence factor to a queue (Breadth-first)
     divergence_queue <- queue()
-    new_div <- get_divergence_factor(dat,loading=ones,fl,divprior,Fprior)
+    new_div <- get_divergence_factor_lfsr(dat,lfsr_tol,loading=ones,fl,divprior,Fprior)
     pushback(divergence_queue,new_div)
     
     while(length(divergence_queue) > 0 && fl$n.factors < Kmax) {
+        if (verbose.lvl > 0) {cat("Length of Queue",length(divergence_queue),"\n")}
         #pop the first divergence off the queue
         current_divergence <- pop(divergence_queue)
-        #set loadings to zero for samples where we cannot conclude the sign of the loading
-        # TODO
         #split into positive and negative parts
         splus <- matrix(1L * (current_divergence > 0), ncol = 1)
         if (sum(splus) > 0 && fl$n.factors < Kmax) {
-            if (verbose.lvl > 0) {cat(get_sums_by_label(tree,splus))}
+            if (verbose.lvl > 0) {print(get_sums_by_label(tree,splus))}
             #add drift loading
             next_fl <- add_factor(dat,splus,fl,driftprior,Fprior)
             if (next_fl$pve[next_fl$n.factors] > min_pve){
                 fl <- next_fl
                 #enqueue new divergence
-                new_div <- get_divergence_factor(dat,splus,fl,divprior,Fprior)
+                new_div <- get_divergence_factor_lfsr(dat,lfsr_tol,loading=splus,fl,divprior,Fprior)
                 pushback(divergence_queue,new_div)
             }
         }
         sminus <- matrix(1L * (current_divergence < 0), ncol = 1)
         if (sum(sminus) > 0 && fl$n.factors < Kmax) {
-            if (verbose.lvl > 0) {cat(get_sums_by_label(tree,sminus))}
+            if (verbose.lvl > 0) {print(get_sums_by_label(tree,sminus))}
             #add drift loading
             next_fl <- add_factor(dat,sminus,fl,driftprior,Fprior)
             if (next_fl$pve[next_fl$n.factors] > min_pve){
                 fl <- next_fl
                 #enqueue new divergence
-                new_div <- get_divergence_factor(dat,sminus,fl,divprior,Fprior)
+                new_div <- get_divergence_factor_lfsr(dat,lfsr_tol,loading=sminus,fl,divprior,Fprior)
                 pushback(divergence_queue,new_div)
             }
         }

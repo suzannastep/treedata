@@ -14,4 +14,164 @@ source("code/fileIO_plotting.R")
 source("code/lfsr_algorithm.R")
 ```
 
+## The Data
+
+```{r}
+nodetree <- form_tree_from_file('data/NodeTrees/NodeTree4/NodeTree4.csv')
+continuoustree <- form_tree_from_file('data/ContinuousTrees/tree1.csv')
+palette=1:20
+plot_nodetree(nodetree,palette=palette)
+```
+
+## Algorithm Performance
+
+```{r}
+nodetree$trajectory$lfsr_drift <- lfsr_algorithm(nodetree)
+```
+
+## Visualizing the Loadings
+
+```{r}
+loadings <- nodetree$trajectory$lfsr_drift$loadings.pm[[1]]
+numloadings <- dim(loadings)[2]
+par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
+for (loadingnum in 1:numloadings){
+  plot_nodetree(nodetree,color=loadings[,loadingnum])
+}
+par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
+for (loadingnum in 1:numloadings){
+    color <- nodetree$csv$Labels
+    #create colormap
+    ## create color palette function
+    pal <- colorRamp(palette)
+    ## rescale color to be between 0 and 1, and 0.5 being the "zero" point
+    newcolor <- color/max(abs(color)) / 2 + 0.5
+    ## use pal and alpha to get rgb value for color 
+    newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
+    ## make colored scatter plot
+    plot(loadings[,loadingnum],col=newcolor)
+}
+```
+
+## Backfitting
+
+```{r}
+nodetree$trajectory$lfsr_drift_backfit <- flash.backfit(nodetree$trajectory$lfsr_drift)
+```
+
+```{r}
+loadings <- nodetree$trajectory$lfsr_drift_backfit$loadings.pm[[1]]
+numloadings <- dim(loadings)[2]
+par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
+for (loadingnum in 1:numloadings){
+  plot_nodetree(nodetree,color=loadings[,loadingnum])
+}
+par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
+for (loadingnum in 1:numloadings){
+    color <- nodetree$csv$Labels
+    #create colormap
+    ## create color palette function
+    pal <- colorRamp(palette)
+    ## rescale color to be between 0 and 1, and 0.5 being the "zero" point
+    newcolor <- color/max(abs(color)) / 2 + 0.5
+    ## use pal and alpha to get rgb value for color 
+    newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
+    ## make colored scatter plot
+    plot(loadings[,loadingnum],col=newcolor)
+}
+```
+
+## First set loadings to be binary and then backfit?
+
+In practice actually just initialize a new flash object and then use the flash.fix.loadings and flash.backfit to initialize with binary loadings
+
+```{r}
+verbose.lvl <- 1
+driftprior <- as.prior(ebnm.fn=ebnm_point_exponential,sign=1)
+Fprior <- prior.normal()
+pm <- nodetree$trajectory$lfsr_drift_backfit$loadings.pm
+Linit <- pm[[1]] > 0
+Finit <- pm[[2]]
+K <- nodetree$trajectory$lfsr_drift_backfit$n.factors
+nodetree$trajectory$lfsr_binary_loadings <- flash.init(nodetree$matrix) %>%
+    flash.set.verbose(verbose.lvl) %>%
+    flash.init.factors(list(Linit,Finit),
+                       prior.family=c(driftprior,Fprior)) %>%
+    flash.fix.loadings(kset=1:K,mode=1) %>%
+    flash.backfit()
+    
+nodetree$trajectory$lfsr_binary_loadings
+```
+
+```{r}
+loadings <- nodetree$trajectory$lfsr_binary_loadings$loadings.pm[[1]]
+numloadings <- dim(loadings)[2]
+par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
+for (loadingnum in 1:numloadings){
+  plot_nodetree(nodetree,color=loadings[,loadingnum])
+}
+par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
+for (loadingnum in 1:numloadings){
+    color <- nodetree$csv$Labels
+    #create colormap
+    ## create color palette function
+    pal <- colorRamp(palette)
+    ## rescale color to be between 0 and 1, and 0.5 being the "zero" point
+    newcolor <- color/max(abs(color)) / 2 + 0.5
+    ## use pal and alpha to get rgb value for color 
+    newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
+    ## make colored scatter plot
+    plot(loadings[,loadingnum],col=newcolor)
+}
+```
+
+## Force binary loadings as you go?
+
+```{r}
+#requires changing the add_factor function to fix all the loadings as you go
+add_factor <- function(dat,loading,fl,prior,Fprior){
+  K <- fl$n.factors
+  #initializes factor to the least squares solution
+  ls.soln  <- t(crossprod(loading,  dat - fitted(fl))/sum(loading))
+  EF <- list(loading, ls.soln)
+  #create new flash object
+  next_fl <- fl %>%
+    flash.init.factors(
+      EF,
+      prior.family = c(prior,Fprior)
+    ) %>%
+    # KEY CHANGE HERE: is.fixed = TRUE, so entire loading is fixed to be binary
+    flash.fix.loadings(kset = K + 1, mode = 1L, is.fixed = TRUE) %>%
+    #only backfit the most recently added factor
+    flash.backfit(kset = K + 1)
+  return(next_fl)
+}
+nodetree$trajectory$lfsr_drift_force_binary <- lfsr_algorithm(nodetree)
+nodetree$trajectory$lfsr_drift_force_binary
+```
+
+```{r}
+loadings <- nodetree$trajectory$lfsr_drift_force_binary$loadings.pm[[1]]
+numloadings <- dim(loadings)[2]
+par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
+for (loadingnum in 1:numloadings){
+  plot_nodetree(nodetree,color=loadings[,loadingnum])
+}
+par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
+for (loadingnum in 1:numloadings){
+    color <- nodetree$csv$Labels
+    #create colormap
+    ## create color palette function
+    pal <- colorRamp(palette)
+    ## rescale color to be between 0 and 1, and 0.5 being the "zero" point
+    newcolor <- color/max(abs(color)) / 2 + 0.5
+    ## use pal and alpha to get rgb value for color 
+    newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
+    ## make colored scatter plot
+    plot(loadings[,loadingnum],col=newcolor)
+}
+```
+
 # TODO full write up
+
+sometimes gives weird error when all the standard deviations are zero
