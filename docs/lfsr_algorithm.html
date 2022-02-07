@@ -476,16 +476,16 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomsuzannasteptreedatatree7aa1343c5977ec8c3e0aa39818913a391051309etargetblank7aa1343a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/suzannastep/treedata/tree/7aa1343c5977ec8c3e0aa39818913a391051309e" target="_blank">7aa1343</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomsuzannasteptreedatatree9e0712c47cf563db063f59fa6650fad4b713951ctargetblank9e0712ca"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/suzannastep/treedata/tree/9e0712c47cf563db063f59fa6650fad4b713951c" target="_blank">9e0712c</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomsuzannasteptreedatatree7aa1343c5977ec8c3e0aa39818913a391051309etargetblank7aa1343a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomsuzannasteptreedatatree9e0712c47cf563db063f59fa6650fad4b713951ctargetblank9e0712ca" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/suzannastep/treedata/tree/7aa1343c5977ec8c3e0aa39818913a391051309e" target="_blank">7aa1343</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/suzannastep/treedata/tree/9e0712c47cf563db063f59fa6650fad4b713951c" target="_blank">9e0712c</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -583,6 +583,40 @@ Message
 Rmd
 </td>
 <td>
+<a href="https://github.com/suzannastep/treedata/blob/9e0712c47cf563db063f59fa6650fad4b713951c/analysis/lfsr_algorithm.Rmd" target="_blank">9e0712c</a>
+</td>
+<td>
+Sue Parkinson
+</td>
+<td>
+2022-02-07
+</td>
+<td>
+update write-up for LFSR algorithm
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/suzannastep/treedata/c7fa1cc5252cd908f71668d4020c51b08781c2f8/docs/lfsr_algorithm.html" target="_blank">c7fa1cc</a>
+</td>
+<td>
+Sue Parkinson
+</td>
+<td>
+2022-02-07
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
 <a href="https://github.com/suzannastep/treedata/blob/7aa1343c5977ec8c3e0aa39818913a391051309e/analysis/lfsr_algorithm.Rmd" target="_blank">7aa1343</a>
 </td>
 <td>
@@ -660,6 +694,7 @@ source(&quot;code/lfsr_algorithm.R&quot;)</code></pre>
 </div>
 <div id="the-data" class="section level2">
 <h2>The Data</h2>
+<p>Loading in the simulated test data, and plot a dimensionality reduction.</p>
 <pre class="r"><code>nodetree &lt;- form_tree_from_file(&#39;data/NodeTrees/NodeTree4/NodeTree4.csv&#39;)
 continuoustree &lt;- form_tree_from_file(&#39;data/ContinuousTrees/tree1.csv&#39;)
 palette=1:20
@@ -705,10 +740,12 @@ Sue Parkinson
 </div>
 <div id="algorithm-performance" class="section level2">
 <h2>Algorithm Performance</h2>
+<p>Compute the drift factorization using LFSR.</p>
 <pre class="r"><code>nodetree$trajectory$lfsr_drift &lt;- lfsr_algorithm(nodetree)</code></pre>
 </div>
 <div id="visualizing-the-loadings" class="section level2">
 <h2>Visualizing the Loadings</h2>
+<p>The first plot below is the dimensionality reduction colored according to the loadings for each factor. We can see that it definitely picks up on the correct tree structure.</p>
 <pre class="r"><code>loadings &lt;- nodetree$trajectory$lfsr_drift$loadings.pm[[1]]
 numloadings &lt;- dim(loadings)[2]
 par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
@@ -804,9 +841,11 @@ Sue Parkinson
 </table>
 </div>
 </div>
+<p>The second plot shows the actual values of the loadings, with the groups colored the same as they were in the first dimensionality reduction. Unfortunately it doesn’t give constant loadings.</p>
 </div>
 <div id="backfitting" class="section level2">
 <h2>Backfitting</h2>
+<p>To try to get closer to a true drift factorization, I try to backfit, which by default respects the sparsity pattern in the loadings. Unfortunately, this makes the factorization closer to a naive factorization which is 1 on the loadings for one label, and zero elsewhere. This decreases the ability to interpret these loadings as detecting how populations co-descend from a particular parent node.</p>
 <pre class="r"><code>nodetree$trajectory$lfsr_drift_backfit &lt;- flash.backfit(nodetree$trajectory$lfsr_drift)</code></pre>
 <pre class="r"><code>loadings &lt;- nodetree$trajectory$lfsr_drift_backfit$loadings.pm[[1]]
 numloadings &lt;- dim(loadings)[2]
@@ -906,7 +945,8 @@ Sue Parkinson
 </div>
 <div id="first-set-loadings-to-be-binary-and-then-backfit" class="section level2">
 <h2>First set loadings to be binary and then backfit?</h2>
-<p>In practice actually just initialize a new flash object and then use the flash.fix.loadings and flash.backfit to initialize with binary loadings</p>
+<p>One sort of silly thing I tried to do is take the sparsity structure defined by the first algorithm, force L to be a binary matrix, and then fit the factors to that. It’s sort of a brute force algorithm.</p>
+<p>In practice I actually just initialize a new flash object and then use the flash.fix.loadings and flash.backfit to initialize with binary loadings</p>
 <pre class="r"><code>verbose.lvl &lt;- 1
 driftprior &lt;- as.prior(ebnm.fn=ebnm_point_exponential,sign=1)
 Fprior &lt;- prior.normal()
@@ -1046,6 +1086,7 @@ Sue Parkinson
 </div>
 <div id="force-binary-loadings-as-you-go" class="section level2">
 <h2>Force binary loadings as you go?</h2>
+<p>Alternatively, you could force the loadings to be binary as you go. This results in roughly the same thing.</p>
 <pre class="r"><code>#requires changing the add_factor function to fix all the loadings as you go
 add_factor &lt;- function(dat,loading,fl,prior,Fprior){
   K &lt;- fl$n.factors
@@ -1182,6 +1223,7 @@ Sue Parkinson
 </div>
 <div id="backfit-after-forcing-to-be-zeros-and-ones" class="section level2">
 <h2>Backfit after forcing to be zeros and ones?</h2>
+<p>Backfitting after enforcing the binary structure doesn’t seem to change anything.</p>
 <pre class="r"><code>nodetree$trajectory$lfsr_drift_force_binary_backfit &lt;- flash.backfit(nodetree$trajectory$lfsr_drift_force_binary)</code></pre>
 <pre class="r"><code>loadings &lt;- nodetree$trajectory$lfsr_drift_force_binary_backfit$loadings.pm[[1]]
 numloadings &lt;- dim(loadings)[2]
@@ -1190,6 +1232,43 @@ for (loadingnum in 1:numloadings){
   plot_nodetree(nodetree,color=loadings[,loadingnum])
 }</code></pre>
 <p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-12-1">
+Past versions of unnamed-chunk-12-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-12-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/suzannastep/treedata/blob/c7fa1cc5252cd908f71668d4020c51b08781c2f8/docs/figure/lfsr_algorithm.Rmd/unnamed-chunk-12-1.png" target="_blank">c7fa1cc</a>
+</td>
+<td>
+Sue Parkinson
+</td>
+<td>
+2022-02-07
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
 for (loadingnum in 1:numloadings){
     color &lt;- nodetree$csv$Labels
@@ -1204,9 +1283,47 @@ for (loadingnum in 1:numloadings){
     plot(loadings[,loadingnum],col=newcolor)
 }</code></pre>
 <p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-12-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-12-2">
+Past versions of unnamed-chunk-12-2.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-12-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/suzannastep/treedata/blob/c7fa1cc5252cd908f71668d4020c51b08781c2f8/docs/figure/lfsr_algorithm.Rmd/unnamed-chunk-12-2.png" target="_blank">c7fa1cc</a>
+</td>
+<td>
+Sue Parkinson
+</td>
+<td>
+2022-02-07
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="sometimes-gives-error-when-all-the-standard-deviations-are-zero" class="section level1">
 <h1>sometimes gives error when all the standard deviations are zero</h1>
+<p>Unfortunately, I wasn’t able to run this algorithm on other, potentially more intersting datasets because I kept getting an error about standard deviations being zero. This happened with the nodetree dataset seen above with <code>lfsr_tol=1e-2</code> instead of <code>lfsr_tol=1e-3</code>, and with the<code>continuous tree</code> dataset.</p>
 <pre class="r"><code>lfsr_algorithm(nodetree,lfsr_tol=1e-2,verbose=1)
 lfsr_algorithm(continuoustree,verbose=1)</code></pre>
 <br>
