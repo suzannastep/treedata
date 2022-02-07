@@ -172,6 +172,37 @@ for (loadingnum in 1:numloadings){
 }
 ```
 
-# TODO full write up
+## Backfit after forcing to be zeros and ones?
 
-sometimes gives weird error when all the standard deviations are zero
+```{r}
+nodetree$trajectory$lfsr_drift_force_binary_backfit <- flash.backfit(nodetree$trajectory$lfsr_drift_force_binary)
+```
+
+```{r}
+loadings <- nodetree$trajectory$lfsr_drift_force_binary_backfit$loadings.pm[[1]]
+numloadings <- dim(loadings)[2]
+par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
+for (loadingnum in 1:numloadings){
+  plot_nodetree(nodetree,color=loadings[,loadingnum])
+}
+par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
+for (loadingnum in 1:numloadings){
+    color <- nodetree$csv$Labels
+    #create colormap
+    ## create color palette function
+    pal <- colorRamp(palette)
+    ## rescale color to be between 0 and 1, and 0.5 being the "zero" point
+    newcolor <- color/max(abs(color)) / 2 + 0.5
+    ## use pal and alpha to get rgb value for color 
+    newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
+    ## make colored scatter plot
+    plot(loadings[,loadingnum],col=newcolor)
+}
+```
+
+# sometimes gives error when all the standard deviations are zero
+
+```{r,eval=FALSE}
+lfsr_algorithm(nodetree,lfsr_tol=1e-2,verbose=1)
+lfsr_algorithm(continuoustree,verbose=1)
+```
