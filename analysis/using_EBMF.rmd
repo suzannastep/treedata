@@ -23,6 +23,7 @@ I will be using two types of data sets in this analysis. All are based on the mo
 The function `form_tree_from_file` in `code/drift_div_factorizations.R` parses the raw data into a format that can be fed into the various methods. Below, we load one data set of each type.
 
 ```{r load data}
+source("code/fileIO_plotting.R")
 nodetree <- form_tree_from_file('data/NodeTrees/NodeTree4/NodeTree4.csv')
 continuoustree <- form_tree_from_file('data/ContinuousTrees/tree1.csv')
 ```
@@ -106,7 +107,7 @@ The functions `drift_fit` and `div_fit` in `code/drift_div_factorizations.R` fit
 ## Performance on Node Trees
 We run the methods on node trees.
 ```{r run nodetree}
-nodetree <- run_methods(nodetree,'output/NodeTrees/NodeTree4/EBMFfactors/',Kmax=Inf,eps=2e-2)
+nodetree <- run_methods(nodetree,Kmax=Inf,eps=2e-2)
 ```
 Here is what the loadings look like for node tree 4.
 
@@ -132,7 +133,7 @@ for (loadingnum in 1:numloadings){
 ## Performance on Continuous Trees
 We now run the methods on continuous trees.
 ```{r run cont tree}
-continuoustree <- run_methods(continuoustree,'output/ContinuousTrees/tree1/EBMFfactors/',Kmax=6,eps=1e-2)
+continuoustree <- run_methods(continuoustree,Kmax=6,eps=1e-2)
 ```
 Here are the results using the drift factorization.
 ```{r plot loadings cont tree drift, fig.height = 4, fig.width = 6}

@@ -296,14 +296,14 @@ div_cov_fit <- function(covmat, prior = prior.point.laplace(), Kmax = 1000) {
 #' This function does not return anything, but instead saves the results into tree$trajectory
 run_methods <- function(tree,Kmax,eps){
   #drift factorization method
-  tree$trajectory$drift <- drift_fit(tree,
-                                     tree$matrix,
+  tree$trajectory$drift <- drift_fit(tree$matrix,
                                      Kmax = Kmax,
-                                     eps = eps)
+                                     eps = eps,
+                                     labels = tree$labels)
   #divergence factorization method
-  tree$trajectory$div <- div_fit(tree,
-                                     tree$matrix,
-                                     Kmax = Kmax,
-                                     eps = eps)
+  tree$trajectory$div <- div_fit(tree$matrix,
+                                 Kmax = Kmax,
+                                 eps = eps,
+                                 labels = tree$labels)
   return(tree)
 }
