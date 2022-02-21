@@ -1,0 +1,250 @@
+---
+title: "StandardErrorsZero"
+author: "Sue Parkinson"
+date: "2/11/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(dplyr)
+library(RColorBrewer)
+library(scales)
+library(flashier)
+library(dequer)
+library(ebnm)
+```
+
+## Reading in the data
+
+First, here is the data. You might have to change the path to data on your local machine.
+
+```{r}
+#read in tree data
+tree <- vector(mode="list")
+tree$csv <- read.csv('data/NodeTrees/NodeTree3/NodeTree3.csv',row.names=1)
+tree$matrix <- tree$csv %>%
+    select(Raw0:Raw499)
+tree$matrix <- as.matrix(tree$matrix)
+tree$dimred <- tree$csv %>%
+        select(tsne0:tsne1)
+```
+
+## Function to visualize the data
+
+In case it is helpful, this is how I've been visualizing this data set. It's a noisy tree with data from internal nodes. The arrows show how the descendancy from the root node to the children. Around each node, samples are normally distributed.
+
+```{r}
+#' Plots the dimensionality reduction of a nodetree along with arrows along the branches.
+#'
+#' @param tree tree object, like the output of form_tree_from_file
+#' @param color vector of colors for the data points
+#' @param palette color pallete to use for the plot
+plot_nodetree <- function(tree,color=1+tree$labels,palette=c("#0000D2","#D2D2D2","#D20000")){
+    #create colormap
+    ## create color palette function
+    pal <- colorRamp(palette)
+    ## rescale color to be between 0 and 1, and 0.5 being the "zero" point
+    newcolor <- color/max(abs(color)) / 2 + 0.5
+    ## use pal and alpha to get rgb value for color
+    newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
+    ## make colored scatter plot
+    plot(tree$dimred,col=newcolor,pch=20)
+
+    # draw arrows between parents and children
+    ## get all the different labels of the nodes
+    labels <- unique(tree$labels)
+    ## get the nodes that are parents
+    parents <- labels[1:(length(labels)/2)]
+    ## initialize index of child and num children per node
+    childidx <- 2
+    children_per_node <- 2
+    ## draw arrows
+    for (parent in parents){
+        for (childnum in 1:children_per_node){
+            child <- labels[childidx]
+            arrows(mean(tree$dimred$tsne0[tree$labels == parent]),
+                   mean(tree$dimred$tsne1[tree$labels == parent]),
+                   mean(tree$dimred$tsne0[tree$labels == child]),
+                   mean(tree$dimred$tsne1[tree$labels == child]),
+                   length=0.05)
+            childidx <- childidx + 1
+        }
+    }
+}
+plot_nodetree(tree,palette=1:7)
+```
+
+## Algorithm
+
+Here is the code I've been using that gives the error. The first cell is just some helper functions.
+
+```{r}
+#' Helper function that returns the loading from one additional divergence factor.
+#' Using the local false sign rate, it sets to zero those loadings for which we cannot be
+#' confident of the sign.
+#'
+#' @param dat the data matrix
+#' @param lfsr_tol Tolerance for local false sign rate
+#' @param loading binary initial loading to specify known sparsity pattern in the loading (e.g. parental sparsity)
+#' @param fl flash object containing the current fit
+#' @param divprior divergence prior for loadings
+#' @param Fprior prior for the factors. Defaults to a normal prior.
+#' @returns the new posterior loading for the additional divergence factor
+get_divergence_factor_lfsr <- function(dat,lfsr_tol,loading,fl,divprior,Fprior){
+    K <- fl$n.factors
+    #initializes factor to the least squares solution
+    ls.soln  <- t(crossprod(loading,  dat - fitted(fl))/sum(loading))
+    EF <- list(loading, ls.soln)
+    next_fl <- fl %>%
+        flash.init.factors(
+            EF,
+            prior.family = c(divprior,Fprior)
+        ) %>%
+        flash.fix.loadings(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %>%
+        flash.backfit(kset = K + 1)
+    loading <- next_fl$loadings.pm[[1]][,K+1]
+    lfsr <- next_fl$loadings.lfsr[[1]][,K+1]
+    loading[lfsr > lfsr_tol] <- 0
+    return(loading)
+}
+
+#' Helper function that adds one factor to the flash object.
+#'
+#' @param dat the data matrix
+#' @param loading binary initial loading to specify the sparsity pattern in the loading
+#' @param fl flash object to add the factor to
+#' @param prior prior for loadings
+#' @param Fprior prior for the factors. Defaults to a normal prior.
+#' @returns a new flash object with a new factor such that the associated loading matches the
+#' sparsity pattern from loading
+add_factor <- function(dat,loading,fl,prior,Fprior){
+  K <- fl$n.factors
+  #initializes factor to the least squares solution
+  ls.soln  <- t(crossprod(loading,  dat - fitted(fl))/sum(loading))
+  EF <- list(loading, ls.soln)
+  #create new flash object
+  next_fl <- fl %>%
+    flash.init.factors(
+      EF,
+      prior.family = c(prior,Fprior)
+    ) %>%
+    flash.fix.loadings(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %>%
+    #only backfit the most recently added factor
+    flash.backfit(kset = K + 1)
+  return(next_fl)
+}
+
+#' Helper function for debugging. Shows how many samples with each label type are activated on
+#' a particular loading
+#'
+#' @param tree tree object; output of form_tree_from_file that has been used in computing a trajectory
+#' @param loading the loading in question
+get_sums_by_label <- function(tree,loading){
+  summary <- as.data.frame(table(tree$labels))
+  summary$NumActivated <- 0
+  idx <- 1
+  for(label in rownames(summary)){
+    start_idx <- idx
+    idx <- idx + summary[label,"Freq"]
+    summary[label,"NumActivated"] <- sum(loading[start_idx:(idx-1)])
+  }
+  return(summary)
+}
+```
+
+The next cell is the actual algorithm, which basically uses the local false sign rate to decide when and how to split the data up into hierarchical groups.
+
+```{r}
+#' Fits a drift factorization to the data and returns the associated flashier object
+#'
+#' @param tree tree object; output of form_tree_from_file.
+#' @param cov If true, fits to the covariance instead of the data matrix
+#' @param divprior prior for intermediate divergence loadings. Defaults to a point Laplace prior.
+#' @param driftprior prior for drift loadings. Defaults to a point exponential prior.
+#' @param Fprior prior for the factors. Defaults to a normal prior.
+#' @param Kmax maximum number of factors to add.
+#' @param lfsr_tol Tolerance for local false sign rate
+#' @param min_pve If the pve for a factor is less than this tolerance, the factor is rejected
+#' @param verbose.lvl The level of verbosity of the function
+lfsr_algorithm <- function(tree,
+                      cov=FALSE,
+                      divprior = prior.point.laplace(),
+                      driftprior = as.prior(ebnm.fn = ebnm_point_exponential,sign=1),
+                      Fprior = prior.normal(),
+                      Kmax = Inf,
+                      lfsr_tol = 1e-3,
+                      min_pve = 0,
+                      verbose.lvl = 0) {
+    if (cov){
+        dat <- cov(t(tree$matrix))
+    }
+    else{
+        dat <- tree$matrix
+    }
+    #the first loading will be the all-ones vector
+    ones <- matrix(1, nrow = nrow(dat), ncol = 1)
+    #first factor will be least sq soln: argmin_f ||Y - ones t(f)||_F^2
+    ls.soln <- t(crossprod(ones, dat)/nrow(dat))
+
+    #create flash object with initial drift loading and initial divergence loading
+    fl <- flash.init(dat) %>%
+        flash.set.verbose(verbose.lvl) %>%
+        #initialize L to be the ones vector, and F to be the least squares solution
+        flash.init.factors(list(ones, ls.soln),
+                           prior.family = c(driftprior,Fprior)) %>%
+        #only fixing the first factor, and the we want to fix row loadings, so mode=1
+        flash.fix.loadings(kset = 1, mode = 1) %>%
+        #backfit to match the priors
+        flash.backfit()
+
+    #add first divergence factor to a queue (Breadth-first)
+    divergence_queue <- queue()
+    new_div <- get_divergence_factor_lfsr(dat,lfsr_tol,loading=ones,fl,divprior,Fprior)
+    pushback(divergence_queue,new_div)
+
+    while(length(divergence_queue) > 0 && fl$n.factors < Kmax) {
+        if (verbose.lvl > 0) {cat("Length of Queue:",length(divergence_queue),"\n")}
+        #pop the first divergence off the queue
+        current_divergence <- pop(divergence_queue)
+        #split into positive and negative parts
+        splus <- matrix(1L * (current_divergence > 0), ncol = 1)
+        if (sum(splus) > 0 && fl$n.factors < Kmax) {
+            print("HERE")
+            if (verbose.lvl > 0) {print(get_sums_by_label(tree,splus))}
+            print("HERE 2")
+            #add drift loading
+            next_fl <- add_factor(dat,splus,fl,driftprior,Fprior)
+            if (next_fl$pve[next_fl$n.factors] > min_pve){
+                fl <- next_fl
+                #enqueue new divergence
+                new_div <- get_divergence_factor_lfsr(dat,lfsr_tol,loading=splus,fl,divprior,Fprior)
+                pushback(divergence_queue,new_div)
+            }
+        }
+        sminus <- matrix(1L * (current_divergence < 0), ncol = 1)
+        if (sum(sminus) > 0 && fl$n.factors < Kmax) {
+            if (verbose.lvl > 0) {print(get_sums_by_label(tree,sminus))}
+            #add drift loading
+            next_fl <- add_factor(dat,sminus,fl,driftprior,Fprior)
+            if (next_fl$pve[next_fl$n.factors] > min_pve){
+                fl <- next_fl
+                #enqueue new divergence
+                new_div <- get_divergence_factor_lfsr(dat,lfsr_tol,loading=sminus,fl,divprior,Fprior)
+                pushback(divergence_queue,new_div)
+            }
+        }
+        if (verbose.lvl > 0) {cat("Factors:", fl$n.factors, "\n")}
+    }
+
+    return(fl)
+}
+```
+
+Finally, running the data on this algorithm gives an error. This is set to `eval=FALSE` right now, but the error it gives is
+
+```{r,eval=FALSE}
+res <- lfsr_algorithm(tree,lfsr_tol=1e-2,cov=TRUE,verbose=1)
+
+```
