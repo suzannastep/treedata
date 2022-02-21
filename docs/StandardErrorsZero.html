@@ -243,9 +243,9 @@ get_divergence_factor_lfsr &lt;- function(dat,lfsr_tol,loading,fl,divprior,Fprio
     next_fl &lt;- fl %&gt;%
         flash.init.factors(
             EF,
-            prior.family = c(divprior,Fprior)
+            ebnm.fn = c(divprior,Fprior)
         ) %&gt;%
-        flash.fix.loadings(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %&gt;%
+        flash.fix.factors(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %&gt;%
         flash.backfit(kset = K + 1)
     loading &lt;- next_fl$loadings.pm[[1]][,K+1]
     lfsr &lt;- next_fl$loadings.lfsr[[1]][,K+1]
@@ -271,9 +271,9 @@ add_factor &lt;- function(dat,loading,fl,prior,Fprior){
   next_fl &lt;- fl %&gt;%
     flash.init.factors(
       EF,
-      prior.family = c(prior,Fprior)
+      ebnm.fn = c(prior,Fprior)
     ) %&gt;%
-    flash.fix.loadings(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %&gt;%
+    flash.fix.factors(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %&gt;%
     #only backfit the most recently added factor
     flash.backfit(kset = K + 1)
   return(next_fl)
@@ -308,8 +308,8 @@ get_sums_by_label &lt;- function(tree,loading){
 #&#39; @param verbose.lvl The level of verbosity of the function
 lfsr_algorithm &lt;- function(tree,
                       cov=FALSE,
-                      divprior = prior.point.laplace(),
-                      driftprior = as.prior(ebnm.fn = ebnm_point_exponential,sign=1),
+                      divprior = ebnm_point_laplace,
+                      driftprior = ebnm_point_exponential,
                       Fprior = prior.normal(),
                       Kmax = Inf,
                       lfsr_tol = 1e-3,
@@ -331,9 +331,9 @@ lfsr_algorithm &lt;- function(tree,
         flash.set.verbose(verbose.lvl) %&gt;%
         #initialize L to be the ones vector, and F to be the least squares solution
         flash.init.factors(list(ones, ls.soln),
-                           prior.family = c(driftprior,Fprior)) %&gt;%
+                           ebnm.fn = c(driftprior,Fprior)) %&gt;%
         #only fixing the first factor, and the we want to fix row loadings, so mode=1
-        flash.fix.loadings(kset = 1, mode = 1) %&gt;%
+        flash.fix.factors(kset = 1, mode = 1) %&gt;%
         #backfit to match the priors
         flash.backfit()
     

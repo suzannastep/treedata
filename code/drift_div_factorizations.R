@@ -30,22 +30,38 @@ get_sums_by_label <- function(labels,loading){
 #' @param fl flash object to add the factor to
 #' @param prior prior for loadings
 #' @param Fprior prior for the factors. Defaults to a normal prior.
+#' @param allfixed Defaults to FALSE. If False, fixes only the loadings that are zero.
+#' Otherwise, fixes the entire loading
 #' @returns a new flash object with a new factor such that the associated loading matches the
 #' sparsity pattern from loading
-add_factor <- function(dat,loading,fl,prior,Fprior){
+add_factor <- function(dat,loading,fl,prior,Fprior,allfixed=FALSE){
   K <- fl$n.factors
   #initializes factor to the least squares solution
   ls.soln  <- t(crossprod(loading,  dat - fitted(fl))/sum(loading))
   EF <- list(loading, ls.soln)
   #create new flash object
-  next_fl <- fl %>%
-    flash.init.factors(
-      EF,
-      prior.family = c(prior,Fprior)
-    ) %>%
-    flash.fix.loadings(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %>%
-    #only backfit the most recently added factor
-    flash.backfit(kset = K + 1)
+  if (allfixed){
+          next_fl <- fl %>%
+          flash.init.factors(
+              EF,
+              ebnm.fn = c(prior,Fprior)
+          ) %>%
+          #if allfixed, is.fixed = TRUE, so entire loading is fixed to be binary
+          flash.fix.factors(kset = K + 1, mode = 1L, is.fixed = TRUE) %>%
+          # only backfit the most recently added factor
+          flash.backfit(kset = K + 1)
+  }
+  else {
+      next_fl <- fl %>%
+          flash.init.factors(
+              EF,
+              ebnm.fn = c(prior,Fprior)
+          ) %>%
+          # if not allfixed, only zero loadings are set to zero
+          flash.fix.factors(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %>%
+          # only backfit the most recently added factor
+          flash.backfit(kset = K + 1)
+  }
   return(next_fl)
 }
 
@@ -65,11 +81,11 @@ get_divergence_factor <- function(dat,loading,fl,divprior,Fprior){
   next_fl <- fl %>%
     flash.init.factors(
       EF,
-      prior.family = c(divprior,Fprior)
+      ebnm.fn = c(divprior,Fprior)
     ) %>%
-    flash.fix.loadings(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %>%
+    flash.fix.factors(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %>%
     flash.backfit(kset = K + 1)
-  return(next_fl$loadings.pm[[1]][,K+1])
+  return(next_fl$L.pm[,K+1])
 }
 
 #' Fits a drift factorization to the data
@@ -84,9 +100,9 @@ get_divergence_factor <- function(dat,loading,fl,divprior,Fprior){
 #' @param eps Tolerance for nonzero values in the loadings.
 #' @param labels Ground truth data labels for testing purposes
 drift_fit <- function(dat,
-                    divprior = prior.point.laplace(),
-                    driftprior = as.prior(ebnm.fn = ebnm_point_exponential,sign=1),
-                    Fprior = prior.normal(),
+                    divprior = ebnm_point_laplace,
+                    driftprior = ebnm_point_exponential,
+                    Fprior = ebnm_normal,
                     Kmax = Inf,
                     min_pve = 0,
                     verbose.lvl = 0,
@@ -102,20 +118,20 @@ drift_fit <- function(dat,
     flash.set.verbose(verbose.lvl) %>%
     #initialize L to be the ones vector, and F to be the least squares solution
     flash.init.factors(list(ones, ls.soln),
-                       prior.family = c(driftprior,Fprior)) %>%
+                       ebnm.fn = c(driftprior,Fprior)) %>%
     #only fixing the first factor, and the we want to fix row loadings, so mode=1
-    flash.fix.loadings(kset = 1, mode = 1) %>%
+    flash.fix.factors(kset = 1, mode = 1) %>%
     #backfit to match the priors
     flash.backfit() %>%
     #add initial divergence loading
     flash.add.greedy(
       Kmax = 1,
-      prior.family = c(divprior, Fprior)
+      ebnm.fn = c(divprior, Fprior)
     )
 
   #add divergence factor to a queue (Breadth-first)
   divergence_queue <- queue()
-  pushback(divergence_queue,fl$loadings.pm[[1]][,2])
+  pushback(divergence_queue,fl$L.pm[,2])
   #remove divergence factor
   fl <- fl %>%
     flash.remove.factors(kset = 2)
@@ -176,9 +192,9 @@ drift_fit <- function(dat,
 #' @param eps Tolerance for nonzero values in the loadings.
 #' @param labels Ground truth data labels for testing purposes
 div_fit <- function(dat,
-                      divprior = prior.point.laplace(),
-                      driftprior = as.prior(ebnm.fn = ebnm_point_exponential,sign=1),
-                      Fprior = prior.normal(),
+                      divprior = ebnm_point_laplace,
+                      driftprior = ebnm_point_exponential,
+                      Fprior = ebnm_normal,
                       Kmax = Inf,
                       min_pve = 0,
                       verbose.lvl = 0,
@@ -194,20 +210,20 @@ div_fit <- function(dat,
     flash.set.verbose(verbose.lvl) %>%
     #initialize L to be the ones vector, and F to be the least squares solution
     flash.init.factors(list(ones, ls.soln),
-                       prior.family = c(driftprior,Fprior)) %>%
+                       ebnm.fn = c(driftprior,Fprior)) %>%
     #only fixing the first factor, and the we want to fix row loadings, so mode=1
-    flash.fix.loadings(kset = 1, mode = 1) %>%
+    flash.fix.factors(kset = 1, mode = 1) %>%
     #backfit to match the priors
     flash.backfit() %>%
     #add initial divergence loading
     flash.add.greedy(
       Kmax = 1,
-      prior.family = c(divprior, Fprior)
+      ebnm.fn = c(divprior, Fprior)
     )
 
   #add divergence factor to a queue (Breadth-first)
   divergence_queue <- queue()
-  pushback(divergence_queue,fl$loadings.pm[[1]][,2])
+  pushback(divergence_queue,fl$L.pm[,2])
 
   K <- fl$n.factors
 
@@ -237,7 +253,7 @@ div_fit <- function(dat,
       if (next_fl$pve[K + 1] > min_pve){
         fl <- next_fl
         K <- fl$n.factors
-        new_div <- fl$loadings.pm[[1]][,K]
+        new_div <- fl$L.pm[,K]
         #enqueue new divergence
         pushback(divergence_queue,new_div)
       }
@@ -250,7 +266,7 @@ div_fit <- function(dat,
       if (next_fl$pve[K + 1] > min_pve){
         fl <- next_fl
         K <- fl$n.factors
-        new_div <- fl$loadings.pm[[1]][,K]
+        new_div <- fl$L.pm[,K]
         #enqueue new divergence
         pushback(divergence_queue,new_div)
       }
@@ -270,7 +286,7 @@ div_fit <- function(dat,
 #' @param covmat the covariance matrix
 #' @param prior prop for the loadings. Defaults to a point Laplace prior.
 #' @param Kmax the maximum number of factors to add. Defaults to 1000
-div_cov_fit <- function(covmat, prior = prior.point.laplace(), Kmax = 1000) {
+div_cov_fit <- function(covmat, prior = ebnm_point_laplace, Kmax = 1000) {
   fl <- div_fit(covmat, prior, Kmax)
   s2 <- max(0, mean(diag(covmat) - diag(fitted(fl))))
   s2_diff <- Inf

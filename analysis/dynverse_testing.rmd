@@ -51,7 +51,7 @@ form_tree_from_file <- function(filename){
   return(tree)
 }
 ```
-I now parse the four datasets. 
+I now parse the four datasets.
 ```{r}
 tree1 <- form_tree_from_file('data/ContinuousTrees/tree1.csv')
 tree2 <- form_tree_from_file('data/ContinuousTrees/tree2.csv')
@@ -113,7 +113,7 @@ Here are some other methods that dynverse did not recommend, but I tried anyway 
 ## EBMF Functions
 Below are functions based off of Jason's code which compute a divergence factorization of the code with point-laplace priors.
 ```{r}
-div_cov_fit <- function(covmat, filename, prior = prior.point.laplace(), Kmax = 1000) {
+div_cov_fit <- function(covmat, filename, prior = ebnm_point_laplace, Kmax = 1000) {
   fl <- div_fit(covmat, filename, prior, Kmax)
   s2 <- max(0, mean(diag(covmat) - diag(fitted(fl))))
   s2_diff <- Inf
@@ -130,7 +130,7 @@ div_cov_fit <- function(covmat, filename, prior = prior.point.laplace(), Kmax = 
   return(fl)
 }
 
-div_fit <- function(dat,filename, prior = prior.point.laplace(), Kmax = Inf, min_pve = 0, verbose.lvl = 0) {
+div_fit <- function(dat,filename, prior = ebnm_point_laplace, Kmax = Inf, min_pve = 0, verbose.lvl = 0) {
   #the first loading will be the all-ones vector
   ones <- matrix(1, nrow = nrow(dat), ncol = 1)
   #first factor will be least sq soln: argmin_f ||Y - ones t(f)||_F^2
@@ -141,14 +141,14 @@ div_fit <- function(dat,filename, prior = prior.point.laplace(), Kmax = Inf, min
     #initialize L to be the ones vector, and F to be the least squares solution
     flash.init.factors(list(ones, ls.soln)) %>%
     #only fixing the first factor, and the we want to fix row loadings, so mode=1
-    flash.fix.loadings(kset = 1, mode = 1) %>%
+    flash.fix.factors(kset = 1, mode = 1) %>%
     #backfit to match the priors
     flash.backfit() %>%
     #add anoter factor
     flash.add.greedy(
       Kmax = 1,
       #specified prior on L, and a normal distribution on F
-      prior.family = c(prior, prior.normal())
+      ebnm.fn = c(prior, ebnm_normal)
     )
 
   current_k <- 2
@@ -157,8 +157,8 @@ div_fit <- function(dat,filename, prior = prior.point.laplace(), Kmax = Inf, min
   while(current_k <= K && K < Kmax) {
     print(current_k)
     #split into loadings for positive and negative parts (1-0 indicator vectors)
-    splus <- matrix(1L * (fl$loadings.pm[[1]][, current_k] > 0), ncol = 1)
-    sminus <- matrix(1L * (fl$loadings.pm[[1]][, current_k] < 0), ncol = 1)
+    splus <- matrix(1L * (fl$L.pm[, current_k] > 0), ncol = 1)
+    sminus <- matrix(1L * (fl$L.pm[, current_k] < 0), ncol = 1)
 
     if (sum(splus) > 0 && sum(sminus) > 0) {
       #lst sq soln for positive and negative factors:
@@ -173,7 +173,7 @@ div_fit <- function(dat,filename, prior = prior.point.laplace(), Kmax = Inf, min
       next_fl <- fl %>%
         #initialize new loadings
         flash.init.factors(EF) %>%
-        flash.fix.loadings(kset = K + 1:2, mode = 1L, is.fixed = (EF[[1]] == 0)) %>%
+        flash.fix.factors(kset = K + 1:2, mode = 1L, is.fixed = (EF[[1]] == 0)) %>%
         flash.backfit(kset = K + 1:2)
       if (any(next_fl$pve[K + 1:2] > min_pve)) {
         fl <- next_fl
@@ -187,11 +187,11 @@ div_fit <- function(dat,filename, prior = prior.point.laplace(), Kmax = Inf, min
     }
   }
 
-  fl$loadings.lfsr[[1]][, 1] <- 0
-  fl$loadings.lfsr[[1]][is.na(fl$loadings.lfsr[[1]])] <- 1
+  fl$L.lfsr[, 1] <- 0
+  fl$L.lfsr[is.na(fl$L.lfsr)] <- 1
 
-  L <- fl$loadings.pm[[1]]
-  F <- fl$loadings.pm[[2]]
+  L <- fl$L.pm
+  F <- fl$F.pm
   scale <- fl$loadings.scale
 
   write.table(L,file=paste(filename,"L.csv",sep=''),sep=',')
@@ -236,7 +236,7 @@ tree1 <- run_methods(tree1,'output/ContinuousTrees/tree1/EBMFfactors/')
 ```
 
 ## Results for Tree 1
-Here is a more detailed comparison of the outputs from dynverse of various methods for tree 1. We visualize the tree recovered using each method. 
+Here is a more detailed comparison of the outputs from dynverse of various methods for tree 1. We visualize the tree recovered using each method.
 
 The most successful method from for the simulated data was probably a simple MST, which clusters the data and then computes a minimal spanning tree.
 ```{r}

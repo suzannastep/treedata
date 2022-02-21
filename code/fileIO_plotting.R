@@ -115,19 +115,29 @@ plot_continuoustree <- function(tree,color=tree$labels,palette=c("#0000D2","#D2D
 #'
 #' @param tree tree object, like the output of form_tree_from_file
 #' @param loading posterior mean of loadings, used to color the tree
-#' @param color colors for each data grouping to visualize the
-plot_nodetree_loadings <- function(nodetree,loadings,color){
+#' @param labels labels for the data used to color data in second plot
+plot_nodetree_loadings <- function(tree,loadings,labels=tree$labels){
     numloadings <- dim(loadings)[2]
-    #dim reduction colored according to loading
+    #first plot
+    ## dim reduction colored according to loading
     par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))
     for (loadingnum in 1:numloadings){
         #uses function from fileIO_plotting.R to produce plot
         # with arrows between groups
-        plot_nodetree(nodetree,color=loadings[,loadingnum])
+        plot_nodetree(tree,color=loadings[,loadingnum])
     }
-    #values of the loadings
+    #second plot
+    ## create color palette function
+    pal <- colorRamp(palette)
+    ## rescale color to be between 0 and 1, and 0.5 being the "zero" point
+    newcolor <- labels/max(abs(labels)) / 2 + 0.5
+    ## use pal and alpha to get rgb value for color
+    newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
+    ## make colored scatter plot
+    plot(tree$dimred,col=newcolor,pch=20)
+    ## values of the loadings
     par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))
     for (loadingnum in 1:numloadings){
-        plot(loadings[,loadingnum],col=color)
+        plot(loadings[,loadingnum],col=newcolor)
     }
 }

@@ -9,6 +9,8 @@ editor_options:
 
 ## Introduction
 
+First, I load in the code from the `code/fileIO_plotting.R` and `code/lfsr_algorithm.R`.
+
 ```{r message=FALSE}
 source("code/fileIO_plotting.R")
 source("code/lfsr_algorithm.R")
@@ -16,7 +18,7 @@ source("code/lfsr_algorithm.R")
 
 ## The Data
 
-Loading in the simulated test data, and plot a dimensionality reduction.
+Load in the simulated test data, and plot a dimensionality reduction.
 
 ```{r}
 nodetree <- form_tree_from_file('data/NodeTrees/NodeTree4/NodeTree4.csv')
@@ -28,7 +30,7 @@ palette=1:20
 Compute the drift factorization using LFSR.
 
 ```{r}
-nodetree$trajectory$lfsr_drift <- lfsr_algorithm(nodetree)
+nodetree$trajectory$lfsr_drift <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels)
 ```
 
 ## Visualizing the Loadings
@@ -38,7 +40,8 @@ When we visualize loadings, I use the function `plot_nodetree_loadings` from `co
 Even without back fitting, the loadings do a good job of detecting the tree structure. Unfortunately, L is not binary; that is, the loadings are not constant on each factor.
 
 ```{r}
-plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_drift$loadings.pm[[1]])
+plot_nodetree_loadings(nodetree,
+                       loadings=nodetree$trajectory$lfsr_drift$L.pm)
 ```
 
 ## Backfitting
@@ -47,19 +50,20 @@ To try to get closer to a true drift factorization, I try to backfit, which by d
 
 ```{r}
 nodetree$trajectory$lfsr_drift_backfit <- flash.backfit(nodetree$trajectory$lfsr_drift)
-plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_drift_backfit$loadings.pm[[1]])
+plot_nodetree_loadings(nodetree,
+                       loadings=nodetree$trajectory$lfsr_drift_backfit$L.pm)
 ```
 
 ## First set loadings to be binary and then backfit?
 
 One sort of silly thing I tried to do is take the sparsity structure defined by the first algorithm, force L to be a binary matrix, and then fit the factors to that. It's sort of a brute force algorithm.
 
-In practice I actually just initialize a new flash object and then use the flash.fix.loadings and flash.backfit to initialize with binary loadings
+In practice I actually just initialize a new flash object and then use the flash.fix.factors and flash.backfit to initialize with binary loadings
 
 ```{r}
 #set up priors
 driftprior <- as.prior(ebnm.fn=ebnm_point_exponential,sign=1)
-Fprior <- prior.normal()
+Fprior <- ebnm_normal
 #initialize with binary L and previous value for F
 pm <- nodetree$trajectory$lfsr_drift_backfit$loadings.pm
 Linit <- pm[[1]] > 0
@@ -67,43 +71,24 @@ Finit <- pm[[2]]
 K <- nodetree$trajectory$lfsr_drift_backfit$n.factors
 #fit F
 nodetree$trajectory$lfsr_binary_loadings <- flash.init(nodetree$matrix) %>%
+    flash.set.verbose(0) %>%
     flash.init.factors(list(Linit,Finit),
-                       prior.family=c(driftprior,Fprior)) %>%
-    flash.fix.loadings(kset=1:K,mode=1) %>%
+                       ebnm.fn=c(driftprior,Fprior)) %>%
+    flash.fix.factors(kset=1:K,mode=1) %>%
     flash.backfit()
 #plot results
-plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_binary_loadings$loadings.pm[[1]])
+plot_nodetree_loadings(nodetree,loadings=nodetree$trajectory$lfsr_binary_loadings$L.pm)
 ```
 
 It definitely finds the correct structure, but one could picture it may not be entirely robust. This is something to potentially explore.
 
 ## Force binary loadings as you go?
 
-Alternatively, you could force the loadings to be binary as you go. This results in roughly the same thing.
+Alternatively, you could force the loadings to be binary as you go. This results in roughly the same thing, but perhaps with slighly better results. I changed the functionality of the `add_factor` function to allow for this.
 
 ```{r}
-#requires changing the add_factor function to fix all the loadings as you go
-add_factor <- function(dat,loading,fl,prior,Fprior){
-  K <- fl$n.factors
-  #initializes factor to the least squares solution
-  ls.soln  <- t(crossprod(loading,  dat - fitted(fl))/sum(loading))
-  EF <- list(loading, ls.soln)
-  #create new flash object
-  next_fl <- fl %>%
-    flash.init.factors(
-      EF,
-      prior.family = c(prior,Fprior)
-    ) %>%
-    #**KEY CHANGE HERE** is.fixed = TRUE, so entire loading is fixed to be binary
-    flash.fix.loadings(kset = K + 1, mode = 1L, is.fixed = TRUE) %>%
-    # old code:
-    # flash.fix.loadings(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %>%
-    #only backfit the most recently added factor
-    flash.backfit(kset = K + 1)
-  return(next_fl)
-}
-nodetree$trajectory$lfsr_drift_force_binary <- lfsr_algorithm(nodetree)
-plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_drift_force_binary$loadings.pm[[1]])
+nodetree$trajectory$lfsr_drift_force_binary <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,allfixed=TRUE)
+plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_drift_force_binary$L.pm)
 ```
 
 ## Backfit after forcing to be zeros and ones?
@@ -112,7 +97,7 @@ Backfitting after enforcing the binary structure doesn't seem to change anything
 
 ```{r}
 nodetree$trajectory$lfsr_drift_force_binary_backfit <- flash.backfit(nodetree$trajectory$lfsr_drift_force_binary)
-plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_drift_force_binary_backfit$loadings.pm[[1]])
+plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_drift_force_binary_backfit$L.pm)
 ```
 
 ## Sometimes gives error when all the standard deviations are zero
@@ -121,8 +106,8 @@ Unfortunately, I wasn't able to run this algorithm on certain datasets because I
 
 ```{r,eval=FALSE}
 #running this code gives an error
-res <- lfsr_algorithm(nodetree,lfsr_tol=1e-2,verbose=1)
-plot_nodetree_loadings(nodetree,res$loadings.pm[[1]])
+res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-2,verbose=1)
+plot_nodetree_loadings(nodetree,res$L.pm)
 ```
 
 ## Some interesting results on certain datasets
@@ -133,21 +118,16 @@ First is a noisy dataset. We see in these results that with a smaller LFSR toler
 
 ```{r}
 nodetree <- form_tree_from_file('data/NodeTrees/NodeTree3/NodeTree3.csv')
-#recreate colormap for this nodetree's labels
-color <- nodetree$labels
-pal <- colorRamp(palette)
-newcolor <- color/max(abs(color)) / 2 + 0.5
-newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
 #run method with lfsr 1e-2
 # TODO raises standard errors must be positive and nonzero error -- why?
-res <- lfsr_algorithm(nodetree,lfsr_tol=1e-1,verbose=1)
-plot_nodetree_loadings(nodetree,res$loadings.pm[[1]])
+res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-1,verbose=1)
+plot_nodetree_loadings(nodetree,res$L.pm)
 #run method with lfsr 1e-2
-res <- lfsr_algorithm(nodetree,lfsr_tol=1e-2)
-plot_nodetree_loadings(nodetree,res$loadings.pm[[1]])
+res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-2)
+plot_nodetree_loadings(nodetree,res$L.pm)
 #run method with lfsr 1e-3
-res <- lfsr_algorithm(nodetree,lfsr_tol=1e-3)
-plot_nodetree_loadings(nodetree,res$loadings.pm[[1]])
+res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-3)
+plot_nodetree_loadings(nodetree,res$L.pm)
 ```
 
 Also, a very simple tree, which it recovers very well.
@@ -160,9 +140,9 @@ color <- nodetree$labels
 pal <- colorRamp(palette)
 newcolor <- color/max(abs(color)) / 2 + 0.5
 newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
-#run method    
-res <- lfsr_algorithm(nodetree,lfsr_tol=1e-3)
-plot_nodetree_loadings(nodetree,res$loadings.pm[[1]])
+#run method
+res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-3)
+plot_nodetree_loadings(nodetree,res$L.pm)
 ```
 
 ## Just using leaf data
@@ -177,9 +157,9 @@ color <- nodetree$labels
 pal <- colorRamp(palette)
 newcolor <- color/max(abs(color)) / 2 + 0.5
 newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
-#run method    
-res <- lfsr_algorithm(nodetree,lfsr_tol=1e-3)
-plot_nodetree_loadings(nodetree,res$loadings.pm[[1]])
+#run method
+res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-3)
+plot_nodetree_loadings(nodetree,res$L.pm)
 ```
 
 ## Does setting L to be binary give the "correct" F?
@@ -188,7 +168,7 @@ Lets check by finding the true F and comparing against the computed F.
 
 ```{r}
 #get computed F
-computedF <- res$loadings.pm[[2]]
+computedF <- res$F.pm
 #get true F
 labels <- unique(nodetree$labels)
 trueF <- matrix(nrow=dim(nodetree$matrix)[2],ncol=length(labels))
@@ -224,18 +204,18 @@ computedF <- computedF/apply(computedF, 2,max)
 
 ```{r}
 library('plot.matrix')
-par(mar=c(5.1, 4.1, 4.1, 4.1))   
+par(mar=c(5.1, 4.1, 4.1, 4.1))
 plot(trueF,border=NA)
-par(mar=c(5.1, 4.1, 4.1, 4.1))   
+par(mar=c(5.1, 4.1, 4.1, 4.1))
 plot(computedF,border=NA)
 ```
 
 Another sanity check is that the factors should be independent. Below we visualize the true and computed covariance matrices.
 
 ```{r}
-par(mar=c(5.1, 4.1, 4.1, 4.1))   
+par(mar=c(5.1, 4.1, 4.1, 4.1))
 plot(cov(trueF))
-par(mar=c(5.1, 4.1, 4.1, 4.1))   
+par(mar=c(5.1, 4.1, 4.1, 4.1))
 plot(cov(computedF))
 ```
 
@@ -247,19 +227,19 @@ This didn't seem to work very well. It throws errors about standard errors being
 
 ```{r}
 # TODO throws error abt standard errors
-# res <- lfsr_algorithm(nodetree,lfsr_tol=1e-2,cov=TRUE)
-# plot_nodetree_loadings(nodetree,res$loadings.pm[[1]])
+# res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-2,cov=TRUE)
+# plot_nodetree_loadings(nodetree,res$L.pm)
 
 # TODO throws error abt standard errors
-# res <- lfsr_algorithm(nodetree,lfsr_tol=1e-1,cov=TRUE)
-# plot_nodetree_loadings(nodetree,res$loadings.pm[[1]])
+# res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-1,cov=TRUE)
+# plot_nodetree_loadings(nodetree,res$L.pm)
 
 #performs poorly; doesn't separate parents from children very well
-res <- lfsr_algorithm(nodetree,lfsr_tol=1e-3,cov=TRUE)
-plot_nodetree_loadings(nodetree,res$loadings.pm[[1]])
+res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-3,cov=TRUE)
+plot_nodetree_loadings(nodetree,res$L.pm)
 #performs poorly still
-res <- lfsr_algorithm(nodetree,lfsr_tol=1e-4,cov=TRUE)
-plot_nodetree_loadings(nodetree,res$loadings.pm[[1]])
+res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-4,cov=TRUE)
+plot_nodetree_loadings(nodetree,res$L.pm)
 ```
 
 ## Using an exponential prior

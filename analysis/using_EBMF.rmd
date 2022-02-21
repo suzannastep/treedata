@@ -113,7 +113,7 @@ Here is what the loadings look like for node tree 4.
 
 First, using the drift factorization.
 ```{r plot loadings nodetree drift, fig.height = 8, fig.width = 6}
-loadings = nodetree$trajectory$drift$loadings.pm[[1]]
+loadings = nodetree$trajectory$drift$L.pm
 numloadings = dim(loadings)[2]
 par(mfrow = c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
 for (loadingnum in 1:numloadings){
@@ -122,7 +122,7 @@ for (loadingnum in 1:numloadings){
 ```
 Now, using the divergence factorization.
 ```{r plot loadings nodetree div, fig.height = 8, fig.width = 6}
-loadings = nodetree$trajectory$div$loadings.pm[[1]]
+loadings = nodetree$trajectory$div$L.pm
 numloadings = dim(loadings)[2]
 par(mfrow = c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
 for (loadingnum in 1:numloadings){
@@ -137,7 +137,7 @@ continuoustree <- run_methods(continuoustree,Kmax=6,eps=1e-2)
 ```
 Here are the results using the drift factorization.
 ```{r plot loadings cont tree drift, fig.height = 4, fig.width = 6}
-loadings = continuoustree$trajectory$drift$loadings.pm[[1]]
+loadings = continuoustree$trajectory$drift$L.pm
 numloadings = dim(loadings)[2]
 par(mfrow = c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
 for (loadingnum in 1:numloadings){
@@ -146,7 +146,7 @@ for (loadingnum in 1:numloadings){
 ```
 Finally, using the divergence factorization, the loadings can be visualized using this plot.
 ```{r plot loadings cont tree div, fig.height = 4, fig.width = 6}
-loadings = continuoustree$trajectory$div$loadings.pm[[1]]
+loadings = continuoustree$trajectory$div$L.pm
 numloadings = dim(loadings)[2]
 par(mfrow = c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
 for (loadingnum in 1:numloadings){

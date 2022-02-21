@@ -745,7 +745,7 @@ guidelines &lt;- dynguidelines::guidelines(answers = answers)</code></pre>
 <div id="ebmf-functions" class="section level2">
 <h2>EBMF Functions</h2>
 <p>Below are functions based off of Jason’s code which compute a divergence factorization of the code with point-laplace priors.</p>
-<pre class="r"><code>div_cov_fit &lt;- function(covmat, filename, prior = prior.point.laplace(), Kmax = 1000) {
+<pre class="r"><code>div_cov_fit &lt;- function(covmat, filename, prior = ebnm_point_laplace, Kmax = 1000) {
   fl &lt;- div_fit(covmat, filename, prior, Kmax)
   s2 &lt;- max(0, mean(diag(covmat) - diag(fitted(fl))))
   s2_diff &lt;- Inf
@@ -762,7 +762,7 @@ guidelines &lt;- dynguidelines::guidelines(answers = answers)</code></pre>
   return(fl)
 }
 
-div_fit &lt;- function(dat,filename, prior = prior.point.laplace(), Kmax = Inf, min_pve = 0, verbose.lvl = 0) {
+div_fit &lt;- function(dat,filename, prior = ebnm_point_laplace, Kmax = Inf, min_pve = 0, verbose.lvl = 0) {
   #the first loading will be the all-ones vector
   ones &lt;- matrix(1, nrow = nrow(dat), ncol = 1)
   #first factor will be least sq soln: argmin_f ||Y - ones t(f)||_F^2
@@ -773,14 +773,14 @@ div_fit &lt;- function(dat,filename, prior = prior.point.laplace(), Kmax = Inf, 
     #initialize L to be the ones vector, and F to be the least squares solution
     flash.init.factors(list(ones, ls.soln)) %&gt;%
     #only fixing the first factor, and the we want to fix row loadings, so mode=1
-    flash.fix.loadings(kset = 1, mode = 1) %&gt;%
+    flash.fix.factors(kset = 1, mode = 1) %&gt;%
     #backfit to match the priors
     flash.backfit() %&gt;%
     #add anoter factor
     flash.add.greedy(
       Kmax = 1,
       #specified prior on L, and a normal distribution on F
-      prior.family = c(prior, prior.normal())
+      ebnm.fn = c(prior, prior.normal())
     )
 
   current_k &lt;- 2
@@ -805,7 +805,7 @@ div_fit &lt;- function(dat,filename, prior = prior.point.laplace(), Kmax = Inf, 
       next_fl &lt;- fl %&gt;%
         #initialize new loadings
         flash.init.factors(EF) %&gt;%
-        flash.fix.loadings(kset = K + 1:2, mode = 1L, is.fixed = (EF[[1]] == 0)) %&gt;%
+        flash.fix.factors(kset = K + 1:2, mode = 1L, is.fixed = (EF[[1]] == 0)) %&gt;%
         flash.backfit(kset = K + 1:2)
       if (any(next_fl$pve[K + 1:2] &gt; min_pve)) {
         fl &lt;- next_fl

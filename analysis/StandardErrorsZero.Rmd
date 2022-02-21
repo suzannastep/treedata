@@ -100,12 +100,12 @@ get_divergence_factor_lfsr <- function(dat,lfsr_tol,loading,fl,divprior,Fprior){
     next_fl <- fl %>%
         flash.init.factors(
             EF,
-            prior.family = c(divprior,Fprior)
+            ebnm.fn = c(divprior,Fprior)
         ) %>%
-        flash.fix.loadings(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %>%
+        flash.fix.factors(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %>%
         flash.backfit(kset = K + 1)
-    loading <- next_fl$loadings.pm[[1]][,K+1]
-    lfsr <- next_fl$loadings.lfsr[[1]][,K+1]
+    loading <- next_fl$L.pm[,K+1]
+    lfsr <- next_fl$L.lfsr[,K+1]
     loading[lfsr > lfsr_tol] <- 0
     return(loading)
 }
@@ -128,9 +128,9 @@ add_factor <- function(dat,loading,fl,prior,Fprior){
   next_fl <- fl %>%
     flash.init.factors(
       EF,
-      prior.family = c(prior,Fprior)
+      ebnm.fn = c(prior,Fprior)
     ) %>%
-    flash.fix.loadings(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %>%
+    flash.fix.factors(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %>%
     #only backfit the most recently added factor
     flash.backfit(kset = K + 1)
   return(next_fl)
@@ -170,9 +170,9 @@ The next cell is the actual algorithm, which basically uses the local false sign
 #' @param verbose.lvl The level of verbosity of the function
 lfsr_algorithm <- function(tree,
                       cov=FALSE,
-                      divprior = prior.point.laplace(),
-                      driftprior = as.prior(ebnm.fn = ebnm_point_exponential,sign=1),
-                      Fprior = prior.normal(),
+                      divprior = ebnm_point_laplace,
+                      driftprior = ebnm_point_exponential,
+                      Fprior = ebnm_normal,
                       Kmax = Inf,
                       lfsr_tol = 1e-3,
                       min_pve = 0,
@@ -193,9 +193,9 @@ lfsr_algorithm <- function(tree,
         flash.set.verbose(verbose.lvl) %>%
         #initialize L to be the ones vector, and F to be the least squares solution
         flash.init.factors(list(ones, ls.soln),
-                           prior.family = c(driftprior,Fprior)) %>%
+                           ebnm.fn = c(driftprior,Fprior)) %>%
         #only fixing the first factor, and the we want to fix row loadings, so mode=1
-        flash.fix.loadings(kset = 1, mode = 1) %>%
+        flash.fix.factors(kset = 1, mode = 1) %>%
         #backfit to match the priors
         flash.backfit()
 

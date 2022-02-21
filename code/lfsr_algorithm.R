@@ -10,7 +10,7 @@ source("code/drift_div_factorizations.R")
 #' Helper function that returns the loading from one additional divergence factor.
 #' Using the local false sign rate, it sets to zero those loadings for which we cannot be
 #' confident of the sign.
-#' 
+#'
 #' @param dat the data matrix
 #' @param lfsr_tol Tolerance for local false sign rate
 #' @param loading binary initial loading to specify known sparsity pattern in the loading (e.g. parental sparsity)
@@ -26,18 +26,18 @@ get_divergence_factor_lfsr <- function(dat,lfsr_tol,loading,fl,divprior,Fprior){
     next_fl <- fl %>%
         flash.init.factors(
             EF,
-            prior.family = c(divprior,Fprior)
+            ebnm.fn = c(divprior,Fprior)
         ) %>%
-        flash.fix.loadings(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %>%
+        flash.fix.factors(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %>%
         flash.backfit(kset = K + 1)
-    loading <- next_fl$loadings.pm[[1]][,K+1]
-    lfsr <- next_fl$loadings.lfsr[[1]][,K+1]
+    loading <- next_fl$L.pm[,K+1]
+    lfsr <- next_fl$L.lfsr[,K+1]
     loading[lfsr > lfsr_tol] <- 0
     return(loading)
 }
 
 #' Fits a drift factorization to the data and returns the associated flashier object
-#' 
+#'
 #' @param dat data matrix. rows are samples, columns are features
 #' @param covar If true, fits to the covariance instead of the data matrix
 #' @param divprior prior for intermediate divergence loadings. Defaults to a point Laplace prior.
@@ -50,14 +50,15 @@ get_divergence_factor_lfsr <- function(dat,lfsr_tol,loading,fl,divprior,Fprior){
 #' @param labels Ground truth data labels for testing purposes
 lfsr_algorithm <- function(dat,
                       covar=FALSE,
-                      divprior = prior.point.laplace(),
-                      driftprior = as.prior(ebnm.fn = ebnm_point_exponential,sign=1),
-                      Fprior = prior.normal(),
+                      divprior = ebnm_point_laplace,
+                      driftprior = ebnm_point_exponential,
+                      Fprior = ebnm_normal,
                       Kmax = Inf,
                       lfsr_tol = 1e-3,
                       min_pve = 0,
                       verbose.lvl = 0,
-                      labels=NULL) {
+                      labels=NULL,
+                      allfixed=FALSE) {
     if (covar){
         dat <- cov(t(dat))
     }
@@ -68,23 +69,23 @@ lfsr_algorithm <- function(dat,
     ones <- matrix(1, nrow = nrow(dat), ncol = 1)
     #first factor will be least sq soln: argmin_f ||Y - ones t(f)||_F^2
     ls.soln <- t(crossprod(ones, dat)/nrow(dat))
-    
+
     #create flash object with initial drift loading and initial divergence loading
     fl <- flash.init(dat) %>%
         flash.set.verbose(verbose.lvl) %>%
         #initialize L to be the ones vector, and F to be the least squares solution
         flash.init.factors(list(ones, ls.soln),
-                           prior.family = c(driftprior,Fprior)) %>%
+                           ebnm.fn = c(driftprior,Fprior)) %>%
         #only fixing the first factor, and the we want to fix row loadings, so mode=1
-        flash.fix.loadings(kset = 1, mode = 1) %>%
+        flash.fix.factors(kset = 1, mode = 1) %>%
         #backfit to match the priors
-        flash.backfit()
-    
+        flash.backfit(extrapolate=FALSE)
+
     #add first divergence factor to a queue (Breadth-first)
     divergence_queue <- queue()
     new_div <- get_divergence_factor_lfsr(dat,lfsr_tol,loading=ones,fl,divprior,Fprior)
     pushback(divergence_queue,new_div)
-    
+
     while(length(divergence_queue) > 0 && fl$n.factors < Kmax) {
         if (verbose.lvl > 0) {cat("Length of Queue",length(divergence_queue),"\n")}
         #pop the first divergence off the queue
@@ -94,7 +95,7 @@ lfsr_algorithm <- function(dat,
         if (sum(splus) > 0 && fl$n.factors < Kmax) {
             if ((verbose.lvl > 0)&(is.null(labels))) {cat(get_sums_by_label(labels,splus))}
             #add drift loading
-            next_fl <- add_factor(dat,splus,fl,driftprior,Fprior)
+            next_fl <- add_factor(dat,splus,fl,driftprior,Fprior,allfixed=allfixed)
             if (next_fl$pve[next_fl$n.factors] > min_pve){
                 fl <- next_fl
                 #enqueue new divergence
@@ -106,7 +107,7 @@ lfsr_algorithm <- function(dat,
         if (sum(sminus) > 0 && fl$n.factors < Kmax) {
             if ((verbose.lvl > 0)&(is.null(labels))) {cat(get_sums_by_label(labels,sminus))}
             #add drift loading
-            next_fl <- add_factor(dat,sminus,fl,driftprior,Fprior)
+            next_fl <- add_factor(dat,sminus,fl,driftprior,Fprior,allfixed=allfixed)
             if (next_fl$pve[next_fl$n.factors] > min_pve){
                 fl <- next_fl
                 #enqueue new divergence
@@ -116,6 +117,6 @@ lfsr_algorithm <- function(dat,
         }
         if (verbose.lvl > 0) {cat("Factors:", fl$n.factors, "\n")}
     }
-    
+
     return(fl)
 }

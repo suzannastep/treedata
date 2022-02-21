@@ -21,7 +21,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 In Chapter 2 of Jason Willwerscheid's thesis, he defines the divergence factorization
  of tree structured data where data is only located at the leaves of a tree, and proves this factorization always exists. It would be natural to try to extend this definition to data at internal nodes. However, the factorization no longer always exists in this case, as the following counterexample shows.
- 
+
 For simplicity, I will work with the covariance matrix of the data. Assuming that $\data$ has a divergence factorization $\data \approx \loadings \factors^\top$ with independent, mean zero factors is equivalent to assuming that $Cov(\data) \approx \loadings \loadings^\top$ for some matrix $\loadings$ that satisfies the following assumptions.
 
 * The first column of $\loadings$ is $\lambda_1 \ones$ where $\ones$ denotes the all-ones vector and $\lambda_1>0$. (This corresponds to some overall drift term.)
@@ -32,7 +32,7 @@ In total, a data set with $K$ non-leaf nodes will have have $K+1$ columns.
 
 ## Counterexample
 
-We will present a tree that such that the divergence factorization does not exist when internal node data is included. The counterexample presented is for the tree shown below. There are three leaf nodes (A,B and C), one internal node (AB), and one root node (ABC). The edge lengths are also shown in the image.    
+We will present a tree that such that the divergence factorization does not exist when internal node data is included. The counterexample presented is for the tree shown below. There are three leaf nodes (A,B and C), one internal node (AB), and one root node (ABC). The edge lengths are also shown in the image.
 
 ![](counterexample.jpg)
 
@@ -83,7 +83,7 @@ Saying that $\cov = \loadings \loadings^\top$ is equivalent to saying that $\cov
 The last two equations imply that $\lambda_3^2 = \nu_3^2$. Since both values are positive, $\lambda_3 = \nu_3$. By the second equation, we see that
 
 $$1 = \lambda_1^2 + \lambda_2^2 - \lambda_3^2$$
-Combining this information with the fact that 
+Combining this information with the fact that
 $$2 = \lambda_1^2 + \lambda_2^2 + \lambda_3^2,$$
 it is straightforward to see that $\lambda_3 = \nu_3 = \frac{1}{\sqrt{2}}$. Here's an updated system of equations with this new information.
 
@@ -98,15 +98,15 @@ If we add equations the second and third equations and use the fact that $\lambd
 $$
 \frac{7}{2} = \nu_2^2 + 2\lambda_2 \nu_2+ \lambda_2^2 = (\lambda_2 + \nu_2)^2.
 $$
-Thus $\nu_2 + \lambda_2 = \frac{\sqrt{7}}{\sqrt{2}} = \frac{7}{\sqrt{14}}$. On the other hand, 
+Thus $\nu_2 + \lambda_2 = \frac{\sqrt{7}}{\sqrt{2}} = \frac{7}{\sqrt{14}}$. On the other hand,
 
 $$
 \frac{1}{2} = \nu_2^2 - \lambda_2^2 = (\lambda_2 + \nu_2)(\nu_2 - \lambda_2) = \frac{7}{\sqrt{14}}(\nu_2 - \lambda_2).
 $$
 
-Then $\nu_2 - \lambda_2 = \frac{1}{\sqrt{14}}$. 
-It follows that $\nu_2 = \frac{4}{\sqrt{14}}$ and $\lambda_2 = \frac{3}{\sqrt{14}}$. 
-Finally, $\lambda_1^2 = \lambda_2 \nu_2 = \frac{6}{7}$. 
+Then $\nu_2 - \lambda_2 = \frac{1}{\sqrt{14}}$.
+It follows that $\nu_2 = \frac{4}{\sqrt{14}}$ and $\lambda_2 = \frac{3}{\sqrt{14}}$.
+Finally, $\lambda_1^2 = \lambda_2 \nu_2 = \frac{6}{7}$.
 Overall, we see that
 <div class="math">
 $$
@@ -131,7 +131,7 @@ $$
 
 ## Adding internal nodes
 
-If we add the internal node $AB$, then the covariance matrix becomes 
+If we add the internal node $AB$, then the covariance matrix becomes
 
 $$
 \cov = \begin{bmatrix}
@@ -142,7 +142,7 @@ $$
 \end{bmatrix}
 $$
 
-If we assume that $\cov_{ij} = \sum_k \loadings_{ik} \loadings_{jk}$ and $\loadings$ has the structure 
+If we assume that $\cov_{ij} = \sum_k \loadings_{ik} \loadings_{jk}$ and $\loadings$ has the structure
 <div class="math">
 $$
 \loadings = \begin{array}{cc} &
@@ -182,7 +182,7 @@ This system has no solutions because the second and third equations imply that $
 
 While the counterexample above is is a rigorous, it does not necessarily provide a satisfactory intuitive understanding as to why the divergence factorization fails.
 
-The goal of the factorization is to express the data as a linear combination of its factors $F$. Each factor represents a direction which best separates the children of a particular node or "divergence event." However, the children of the node in question will not necessarily diverge the same amount as the parent. Thus, it is hard to expect the loadings will be uniform among all of the nodes on the left or right. 
+The goal of the factorization is to express the data as a linear combination of its factors $F$. Each factor represents a direction which best separates the children of a particular node or "divergence event." However, the children of the node in question will not necessarily diverge the same amount as the parent. Thus, it is hard to expect the loadings will be uniform among all of the nodes on the left or right.
 
 ## Discussion
 
@@ -198,9 +198,9 @@ However, our goal is to develop a simple tool for computing tree factorizations 
 
 #### Computing Drift Factorizations
 
-This result suggests that computing drift factorizations may be the way to go. For instance, we know they exist with one uniform definition whether the data is from internal node or leaves. However, challenges remain in how to compute these factorizations. 
+This result suggests that computing drift factorizations may be the way to go. For instance, we know they exist with one uniform definition whether the data is from internal node or leaves. However, challenges remain in how to compute these factorizations.
 
-In part these challenges stem from the fact that the rank of the data is usually approximately the same as the number of nodes from which the data was drawn. If we only have leaf data, the rank will be much smaller than the number of terms needed to write out a drift factorization, but comparable to the number of divergence terms needed. If we have data from the all the internal nodes, the rank is (approximately) equal to the number of drift terms needed. 
+In part these challenges stem from the fact that the rank of the data is usually approximately the same as the number of nodes from which the data was drawn. If we only have leaf data, the rank will be much smaller than the number of terms needed to write out a drift factorization, but comparable to the number of divergence terms needed. If we have data from the all the internal nodes, the rank is (approximately) equal to the number of drift terms needed.
 
 I believe that, at least with internal node data, greedily and hierarchically adding divergence terms and then splitting them into two drift terms will likely lead to a successful algorithm for computing drift factorizations. The results in [Drift and Divergence Factorizations](using_EBMF.html) are promising, but the drift algorithm used there needs additional refinement.
 
@@ -224,4 +224,3 @@ One interesting "philosophical" question this raises is whether it is easier to 
 On one hand, when you estimate the tree structure with internal node data, there are more ways to mess up. When there is just leaf data, you don't necessarily explicitly estimate the location of the internal nodes, or know all the details of the relationships between them, in order to get the final relationships between the leaves correct. For example, simple methods like agglomorative clustering using single, complete, or average linkage clustering can return accurate information about the relationships between the leaves while never estimating the internal nodes.
 
 However intuitively, it seems like internal node data inherently has more topological information, and it should be easier to recover the true structure with that extra information. [Minimal spanning trees](dynverse_testing.html) between clusters of points, for example, seem fairly successful, but are unlikely to give good results with only data at the leaves. I hope that we can develop a tool that takes advantage of the additional information inherent in internal data, but is still successful for with just the leaves.
-

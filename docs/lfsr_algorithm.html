@@ -946,7 +946,7 @@ Sue Parkinson
 <div id="first-set-loadings-to-be-binary-and-then-backfit" class="section level2">
 <h2>First set loadings to be binary and then backfit?</h2>
 <p>One sort of silly thing I tried to do is take the sparsity structure defined by the first algorithm, force L to be a binary matrix, and then fit the factors to that. It’s sort of a brute force algorithm.</p>
-<p>In practice I actually just initialize a new flash object and then use the flash.fix.loadings and flash.backfit to initialize with binary loadings</p>
+<p>In practice I actually just initialize a new flash object and then use the flash.fix.factors and flash.backfit to initialize with binary loadings</p>
 <pre class="r"><code>verbose.lvl &lt;- 1
 driftprior &lt;- as.prior(ebnm.fn=ebnm_point_exponential,sign=1)
 Fprior &lt;- prior.normal()
@@ -957,8 +957,8 @@ K &lt;- nodetree$trajectory$lfsr_drift_backfit$n.factors
 nodetree$trajectory$lfsr_binary_loadings &lt;- flash.init(nodetree$matrix) %&gt;%
     flash.set.verbose(verbose.lvl) %&gt;%
     flash.init.factors(list(Linit,Finit),
-                       prior.family=c(driftprior,Fprior)) %&gt;%
-    flash.fix.loadings(kset=1:K,mode=1) %&gt;%
+                       ebnm.fn=c(driftprior,Fprior)) %&gt;%
+    flash.fix.factors(kset=1:K,mode=1) %&gt;%
     flash.backfit()</code></pre>
 <pre><code>Backfitting 15 factors (tolerance: 1.12e-02)...
   Difference between iterations is within 1.0e+04...
@@ -1097,10 +1097,10 @@ add_factor &lt;- function(dat,loading,fl,prior,Fprior){
   next_fl &lt;- fl %&gt;%
     flash.init.factors(
       EF,
-      prior.family = c(prior,Fprior)
+      ebnm.fn = c(prior,Fprior)
     ) %&gt;%
     # KEY CHANGE HERE: is.fixed = TRUE, so entire loading is fixed to be binary
-    flash.fix.loadings(kset = K + 1, mode = 1L, is.fixed = TRUE) %&gt;%
+    flash.fix.factors(kset = K + 1, mode = 1L, is.fixed = TRUE) %&gt;%
     #only backfit the most recently added factor
     flash.backfit(kset = K + 1)
   return(next_fl)
