@@ -33,7 +33,7 @@ image.plot(cov(t(nodetree$matrix)))
 ```
 You can see that there are nested blocks in the matrix. Another way to understand the trees is by plotting a dimensionality reduction. The data set can be reduced to two dimensions (here we do so using tsne), and then we can draw arrows between parents and their children.
 ```{r nodetree plot}
-plot_nodetree <- function(tree,color=1+tree$csv$Labels,palette=c("#0000D2","#D2D2D2","#D20000")){
+plot_nodetree <- function(tree,color=1+tree$labels,palette=c("#0000D2","#D2D2D2","#D20000")){
   #create colormap
   ## create color palette function
   pal <- colorRamp(palette)
@@ -46,7 +46,7 @@ plot_nodetree <- function(tree,color=1+tree$csv$Labels,palette=c("#0000D2","#D2D
   
   # draw arrows between parents and children
   ## get all the different labels of the nodes
-  labels <- unique(tree$csv$Labels)
+  labels <- unique(tree$labels)
   ## get the nodes that are parents
   parents <- labels[1:(length(labels)/2)]
   ## initialize index of child and num children per node
@@ -56,10 +56,10 @@ plot_nodetree <- function(tree,color=1+tree$csv$Labels,palette=c("#0000D2","#D2D
   for (parent in parents){
     for (childnum in 1:children_per_node){
       child <- labels[childidx]
-      arrows(mean(tree$dimred$tsne0[tree$csv$Labels == parent]),
-             mean(tree$dimred$tsne1[tree$csv$Labels == parent]),
-             mean(tree$dimred$tsne0[tree$csv$Labels == child]),
-             mean(tree$dimred$tsne1[tree$csv$Labels == child]),
+      arrows(mean(tree$dimred$tsne0[tree$labels == parent]),
+             mean(tree$dimred$tsne1[tree$labels == parent]),
+             mean(tree$dimred$tsne0[tree$labels == child]),
+             mean(tree$dimred$tsne1[tree$labels == child]),
              length=0.05)
       childidx <- childidx + 1
     }
@@ -72,7 +72,7 @@ There are clusters of points around each nodes.
 In contrast, here is the covariance matrix and dimensionality reduction of one of the continuous trees plotted with arrows between the start and end of each branch.
 ```{r cont tree plot}
 image.plot(cov(t(continuoustree$matrix)))
-plot_continuoustree <- function(tree,color=tree$csv$Labels,palette=c("#0000D2","#D2D2D2","#D20000")){
+plot_continuoustree <- function(tree,color=tree$labels,palette=c("#0000D2","#D2D2D2","#D20000")){
   #create colormap
   ## create color palette function
   pal <- colorRamp(palette)
@@ -85,10 +85,10 @@ plot_continuoustree <- function(tree,color=tree$csv$Labels,palette=c("#0000D2","
   
   # draw arrows along branches
   ## get all the different labels of the nodes
-  labels <- unique(tree$csv$Labels)
+  labels <- unique(tree$labels)
   ## draw arrows
   for (label in labels){
-    group <- tree$dimred[tree$csv$Labels == label,]
+    group <- tree$dimred[tree$labels == label,]
     first <- head(group,1)
     last <- tail(group,1)
     arrows(first$tsne0,first$tsne1,

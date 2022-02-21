@@ -20,9 +20,7 @@ Loading in the simulated test data, and plot a dimensionality reduction.
 
 ```{r}
 nodetree <- form_tree_from_file('data/NodeTrees/NodeTree4/NodeTree4.csv')
-continuoustree <- form_tree_from_file('data/ContinuousTrees/tree1.csv')
 palette=1:20
-plot_nodetree(nodetree,palette=palette)
 ```
 
 ## Algorithm Performance
@@ -35,31 +33,13 @@ nodetree$trajectory$lfsr_drift <- lfsr_algorithm(nodetree)
 
 ## Visualizing the Loadings
 
-The first plot below is the dimensionality reduction colored according to the loadings for each factor. We can see that it definitely picks up on the correct tree structure.
+When we visualize loadings, I use the function `plot_nodetree_loadings` from `code/fileIO_plotting`. The first plot created by this function is the dimensionality reduction colored according to the loadings for each factor. The second plot shows the actual numerical values of each loading.
+
+Even without back fitting, the loadings do a good job of detecting the tree structure. Unfortunately, L is not binary; that is, the loadings are not constant on each factor.
 
 ```{r}
-loadings <- nodetree$trajectory$lfsr_drift$loadings.pm[[1]]
-numloadings <- dim(loadings)[2]
-par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
-for (loadingnum in 1:numloadings){
-  plot_nodetree(nodetree,color=loadings[,loadingnum])
-}
-par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
-for (loadingnum in 1:numloadings){
-    color <- nodetree$csv$Labels
-    #create colormap
-    ## create color palette function
-    pal <- colorRamp(palette)
-    ## rescale color to be between 0 and 1, and 0.5 being the "zero" point
-    newcolor <- color/max(abs(color)) / 2 + 0.5
-    ## use pal and alpha to get rgb value for color 
-    newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
-    ## make colored scatter plot
-    plot(loadings[,loadingnum],col=newcolor)
-}
+plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_drift$loadings.pm[[1]])
 ```
-
-The second plot shows the actual values of the loadings, with the groups colored the same as they were in the first dimensionality reduction. Unfortunately it doesn't give constant loadings.
 
 ## Backfitting
 
@@ -67,28 +47,7 @@ To try to get closer to a true drift factorization, I try to backfit, which by d
 
 ```{r}
 nodetree$trajectory$lfsr_drift_backfit <- flash.backfit(nodetree$trajectory$lfsr_drift)
-```
-
-```{r}
-loadings <- nodetree$trajectory$lfsr_drift_backfit$loadings.pm[[1]]
-numloadings <- dim(loadings)[2]
-par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
-for (loadingnum in 1:numloadings){
-  plot_nodetree(nodetree,color=loadings[,loadingnum])
-}
-par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
-for (loadingnum in 1:numloadings){
-    color <- nodetree$csv$Labels
-    #create colormap
-    ## create color palette function
-    pal <- colorRamp(palette)
-    ## rescale color to be between 0 and 1, and 0.5 being the "zero" point
-    newcolor <- color/max(abs(color)) / 2 + 0.5
-    ## use pal and alpha to get rgb value for color 
-    newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
-    ## make colored scatter plot
-    plot(loadings[,loadingnum],col=newcolor)
-}
+plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_drift_backfit$loadings.pm[[1]])
 ```
 
 ## First set loadings to be binary and then backfit?
@@ -98,44 +57,25 @@ One sort of silly thing I tried to do is take the sparsity structure defined by 
 In practice I actually just initialize a new flash object and then use the flash.fix.loadings and flash.backfit to initialize with binary loadings
 
 ```{r}
-verbose.lvl <- 1
+#set up priors
 driftprior <- as.prior(ebnm.fn=ebnm_point_exponential,sign=1)
 Fprior <- prior.normal()
+#initialize with binary L and previous value for F
 pm <- nodetree$trajectory$lfsr_drift_backfit$loadings.pm
 Linit <- pm[[1]] > 0
 Finit <- pm[[2]]
 K <- nodetree$trajectory$lfsr_drift_backfit$n.factors
+#fit F
 nodetree$trajectory$lfsr_binary_loadings <- flash.init(nodetree$matrix) %>%
-    flash.set.verbose(verbose.lvl) %>%
     flash.init.factors(list(Linit,Finit),
                        prior.family=c(driftprior,Fprior)) %>%
     flash.fix.loadings(kset=1:K,mode=1) %>%
     flash.backfit()
-    
-nodetree$trajectory$lfsr_binary_loadings
+#plot results
+plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_binary_loadings$loadings.pm[[1]])
 ```
 
-```{r}
-loadings <- nodetree$trajectory$lfsr_binary_loadings$loadings.pm[[1]]
-numloadings <- dim(loadings)[2]
-par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
-for (loadingnum in 1:numloadings){
-  plot_nodetree(nodetree,color=loadings[,loadingnum])
-}
-par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
-for (loadingnum in 1:numloadings){
-    color <- nodetree$csv$Labels
-    #create colormap
-    ## create color palette function
-    pal <- colorRamp(palette)
-    ## rescale color to be between 0 and 1, and 0.5 being the "zero" point
-    newcolor <- color/max(abs(color)) / 2 + 0.5
-    ## use pal and alpha to get rgb value for color 
-    newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
-    ## make colored scatter plot
-    plot(loadings[,loadingnum],col=newcolor)
-}
-```
+It definitely finds the correct structure, but one could picture it may not be entirely robust. This is something to potentially explore.
 
 ## Force binary loadings as you go?
 
@@ -154,36 +94,16 @@ add_factor <- function(dat,loading,fl,prior,Fprior){
       EF,
       prior.family = c(prior,Fprior)
     ) %>%
-    # KEY CHANGE HERE: is.fixed = TRUE, so entire loading is fixed to be binary
+    #**KEY CHANGE HERE** is.fixed = TRUE, so entire loading is fixed to be binary
     flash.fix.loadings(kset = K + 1, mode = 1L, is.fixed = TRUE) %>%
+    # old code:
+    # flash.fix.loadings(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %>%
     #only backfit the most recently added factor
     flash.backfit(kset = K + 1)
   return(next_fl)
 }
 nodetree$trajectory$lfsr_drift_force_binary <- lfsr_algorithm(nodetree)
-nodetree$trajectory$lfsr_drift_force_binary
-```
-
-```{r}
-loadings <- nodetree$trajectory$lfsr_drift_force_binary$loadings.pm[[1]]
-numloadings <- dim(loadings)[2]
-par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
-for (loadingnum in 1:numloadings){
-  plot_nodetree(nodetree,color=loadings[,loadingnum])
-}
-par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
-for (loadingnum in 1:numloadings){
-    color <- nodetree$csv$Labels
-    #create colormap
-    ## create color palette function
-    pal <- colorRamp(palette)
-    ## rescale color to be between 0 and 1, and 0.5 being the "zero" point
-    newcolor <- color/max(abs(color)) / 2 + 0.5
-    ## use pal and alpha to get rgb value for color 
-    newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
-    ## make colored scatter plot
-    plot(loadings[,loadingnum],col=newcolor)
-}
+plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_drift_force_binary$loadings.pm[[1]])
 ```
 
 ## Backfit after forcing to be zeros and ones?
@@ -192,35 +112,160 @@ Backfitting after enforcing the binary structure doesn't seem to change anything
 
 ```{r}
 nodetree$trajectory$lfsr_drift_force_binary_backfit <- flash.backfit(nodetree$trajectory$lfsr_drift_force_binary)
+plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_drift_force_binary_backfit$loadings.pm[[1]])
+```
+
+## Sometimes gives error when all the standard deviations are zero
+
+Unfortunately, I wasn't able to run this algorithm on certain datasets because I kept getting an error about standard deviations being zero. This happened with the nodetree dataset seen above with `lfsr_tol=1e-2` instead of `lfsr_tol=1e-3`, and with the`continuoustree` dataset. However, changing to the internally enforced binary algorithm fixed this.
+
+```{r,eval=FALSE}
+#running this code gives an error
+res <- lfsr_algorithm(nodetree,lfsr_tol=1e-2,verbose=1)
+plot_nodetree_loadings(nodetree,res$loadings.pm[[1]])
+```
+
+## Some interesting results on certain datasets
+
+Here are some interesting results using the enforced binary structure.
+
+First is a noisy dataset. We see in these results that with a smaller LFSR tolerance, it detects less structure, as one might anticipate. In some ways the local false sign rate allows us to specify how sure we want to be that we're really finding tree structure. TODO why isn't it working this time?
+
+```{r}
+nodetree <- form_tree_from_file('data/NodeTrees/NodeTree3/NodeTree3.csv')
+#recreate colormap for this nodetree's labels
+color <- nodetree$labels
+pal <- colorRamp(palette)
+newcolor <- color/max(abs(color)) / 2 + 0.5
+newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
+#run method with lfsr 1e-2
+# TODO raises standard errors must be positive and nonzero error -- why?
+res <- lfsr_algorithm(nodetree,lfsr_tol=1e-1,verbose=1)
+plot_nodetree_loadings(nodetree,res$loadings.pm[[1]])
+#run method with lfsr 1e-2
+res <- lfsr_algorithm(nodetree,lfsr_tol=1e-2)
+plot_nodetree_loadings(nodetree,res$loadings.pm[[1]])
+#run method with lfsr 1e-3
+res <- lfsr_algorithm(nodetree,lfsr_tol=1e-3)
+plot_nodetree_loadings(nodetree,res$loadings.pm[[1]])
+```
+
+Also, a very simple tree, which it recovers very well.
+
+```{r}
+nodetree <- form_tree_from_file('data/NodeTrees/NodeTree1/NodeTree1.csv')
+
+#recreate colormap for this nodetree's labels
+color <- nodetree$labels
+pal <- colorRamp(palette)
+newcolor <- color/max(abs(color)) / 2 + 0.5
+newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
+#run method    
+res <- lfsr_algorithm(nodetree,lfsr_tol=1e-3)
+plot_nodetree_loadings(nodetree,res$loadings.pm[[1]])
+```
+
+## Just using leaf data
+
+Here is the algorithm run on a data set with just leaf data.
+
+```{r}
+nodetree <- form_tree_from_file('data/NodeTrees/NodeTree1/NodeTree1.csv')
+
+#recreate colormap for this nodetree's labels
+color <- nodetree$labels
+pal <- colorRamp(palette)
+newcolor <- color/max(abs(color)) / 2 + 0.5
+newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
+#run method    
+res <- lfsr_algorithm(nodetree,lfsr_tol=1e-3)
+plot_nodetree_loadings(nodetree,res$loadings.pm[[1]])
+```
+
+## Does setting L to be binary give the "correct" F?
+
+Lets check by finding the true F and comparing against the computed F.
+
+```{r}
+#get computed F
+computedF <- res$loadings.pm[[2]]
+#get true F
+labels <- unique(nodetree$labels)
+trueF <- matrix(nrow=dim(nodetree$matrix)[2],ncol=length(labels))
+## first factor is the mean of the root node
+trueF[,1] <- colMeans(nodetree$matrix[nodetree$labels == 0,])
+## get the nodes that are parents
+parents <- labels[1:(length(labels)/2)]
+## initialize index of child and num children per node
+childidx <- 2
+children_per_node <- 2
+## differences are the factors
+for (parent in parents){
+    parent_mean <- colMeans(nodetree$matrix[nodetree$labels == parent,])
+    for (childnum in 1:children_per_node){
+        child <- labels[childidx]
+        child_mean <- colMeans(nodetree$matrix[nodetree$labels == child,])
+        factor <- parent_mean - child_mean
+        trueF[,childidx] <- factor
+        childidx <- childidx + 1
+    }
+}
+```
+
+First, we should compute the relative error in F. I first rescale both matrices to account for an arbitrary scaling factor.
+
+```{r}
+maxabs <- function(data){
+    return(max(abs(data)))
+}
+trueF <- trueF/apply(trueF, 2,max)
+computedF <- computedF/apply(computedF, 2,max)
 ```
 
 ```{r}
-loadings <- nodetree$trajectory$lfsr_drift_force_binary_backfit$loadings.pm[[1]]
-numloadings <- dim(loadings)[2]
-par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
-for (loadingnum in 1:numloadings){
-  plot_nodetree(nodetree,color=loadings[,loadingnum])
-}
-par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
-for (loadingnum in 1:numloadings){
-    color <- nodetree$csv$Labels
-    #create colormap
-    ## create color palette function
-    pal <- colorRamp(palette)
-    ## rescale color to be between 0 and 1, and 0.5 being the "zero" point
-    newcolor <- color/max(abs(color)) / 2 + 0.5
-    ## use pal and alpha to get rgb value for color 
-    newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
-    ## make colored scatter plot
-    plot(loadings[,loadingnum],col=newcolor)
-}
+library('plot.matrix')
+par(mar=c(5.1, 4.1, 4.1, 4.1))   
+plot(trueF,border=NA)
+par(mar=c(5.1, 4.1, 4.1, 4.1))   
+plot(computedF,border=NA)
 ```
 
-# sometimes gives error when all the standard deviations are zero
+Another sanity check is that the factors should be independent. Below we visualize the true and computed covariance matrices.
 
-Unfortunately, I wasn't able to run this algorithm on other, potentially more intersting datasets because I kept getting an error about standard deviations being zero. This happened with the nodetree dataset seen above with `lfsr_tol=1e-2` instead of `lfsr_tol=1e-3`, and with the`continuous tree` dataset.
+```{r}
+par(mar=c(5.1, 4.1, 4.1, 4.1))   
+plot(cov(trueF))
+par(mar=c(5.1, 4.1, 4.1, 4.1))   
+plot(cov(computedF))
+```
 
-```{r,eval=FALSE}
-lfsr_algorithm(nodetree,lfsr_tol=1e-2,verbose=1)
-lfsr_algorithm(continuoustree,verbose=1)
+It looks like they're still fairly correlated, unfortunately. But it wouldn't be hard to get $F$ from $L$ in other ways. I'm just not sure why flash doesn't compute it itself.
+
+## Trying with the covariance matrix instead
+
+This didn't seem to work very well. It throws errors about standard errors being zero in some cases, and in other cases it doesn't detect the tree structure very well.
+
+```{r}
+# TODO throws error abt standard errors
+# res <- lfsr_algorithm(nodetree,lfsr_tol=1e-2,cov=TRUE)
+# plot_nodetree_loadings(nodetree,res$loadings.pm[[1]])
+
+# TODO throws error abt standard errors
+# res <- lfsr_algorithm(nodetree,lfsr_tol=1e-1,cov=TRUE)
+# plot_nodetree_loadings(nodetree,res$loadings.pm[[1]])
+
+#performs poorly; doesn't separate parents from children very well
+res <- lfsr_algorithm(nodetree,lfsr_tol=1e-3,cov=TRUE)
+plot_nodetree_loadings(nodetree,res$loadings.pm[[1]])
+#performs poorly still
+res <- lfsr_algorithm(nodetree,lfsr_tol=1e-4,cov=TRUE)
+plot_nodetree_loadings(nodetree,res$loadings.pm[[1]])
+```
+
+## Using an exponential prior
+
+TODO
+
+```{r}
+
 ```

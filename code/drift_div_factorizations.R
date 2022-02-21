@@ -6,13 +6,13 @@ library(fields)
 library(dyno)
 library(dequer)
 
-#' Helper function for debugging. Shows how many samples with each label type are activated on 
+#' Helper function for debugging. Shows how many samples with each label type are activated on
 #' a particular loading
-#' 
-#' @param tree tree object; output of form_tree_from_file that has been used in computing a trajectory
-#' @param loading the loading in question 
-get_sums_by_label <- function(tree,loading){
-  summary <- as.data.frame(table(tree$csv$Labels))
+#'
+#' @param labels ground truth labels of data points
+#' @param loading the loading in question
+get_sums_by_label <- function(labels,loading){
+  summary <- as.data.frame(table(labels))
   summary$NumActivated <- 0
   idx <- 1
   for(label in rownames(summary)){
@@ -24,13 +24,13 @@ get_sums_by_label <- function(tree,loading){
 }
 
 #' Helper function that adds one factor to the flash object.
-#' 
+#'
 #' @param dat the data matrix
 #' @param loading binary initial loading to specify the sparsity pattern in the loading
 #' @param fl flash object to add the factor to
 #' @param prior prior for loadings
 #' @param Fprior prior for the factors. Defaults to a normal prior.
-#' @returns a new flash object with a new factor such that the associated loading matches the 
+#' @returns a new flash object with a new factor such that the associated loading matches the
 #' sparsity pattern from loading
 add_factor <- function(dat,loading,fl,prior,Fprior){
   K <- fl$n.factors
@@ -50,7 +50,7 @@ add_factor <- function(dat,loading,fl,prior,Fprior){
 }
 
 #' Helper function that returns the loading from one additional divergence factor
-#' 
+#'
 #' @param dat the data matrix
 #' @param loading binary initial loading to specify known sparsity pattern in the loading (e.g. parental sparsity)
 #' @param fl flash object containing the current fit
@@ -73,24 +73,25 @@ get_divergence_factor <- function(dat,loading,fl,divprior,Fprior){
 }
 
 #' Fits a drift factorization to the data
-#' 
-#' @param tree tree object; output of form_tree_from_file. 
+#'
+#' @param dat data matrix. rows are samples, columns are features
 #' @param divprior prior for intermediate divergence loadings. Defaults to a point Laplace prior.
 #' @param driftprior prior for drift loadings. Defaults to a point exponential prior.
 #' @param Fprior prior for the factors. Defaults to a normal prior.
 #' @param Kmax maximum number of factors to add.
 #' @param min_pve If the pve for a factor is less than this tolerance, the factor is rejected
 #' @param verbose.lvl The level of verbosity of the function
-#' @param eps Tolerance for nonzero values in the loadings. 
-drift_fit <- function(tree,
+#' @param eps Tolerance for nonzero values in the loadings.
+#' @param labels Ground truth data labels for testing purposes
+drift_fit <- function(dat,
                     divprior = prior.point.laplace(),
                     driftprior = as.prior(ebnm.fn = ebnm_point_exponential,sign=1),
                     Fprior = prior.normal(),
                     Kmax = Inf,
                     min_pve = 0,
                     verbose.lvl = 0,
-                    eps=1e-2) {
-  dat <- tree$matrix
+                    eps=1e-2,
+                    labels=NULL) {
   #the first loading will be the all-ones vector
   ones <- matrix(1, nrow = nrow(dat), ncol = 1)
   #first factor will be least sq soln: argmin_f ||Y - ones t(f)||_F^2
@@ -126,8 +127,8 @@ drift_fit <- function(tree,
     #split into loadings for positive and negative parts (1-0 indicator vectors)
     splus <- matrix(1L * (current_divergence > eps), ncol = 1)
     if (sum(splus) > 0) {
-      if (verbose.lvl > 0) {
-        cat(get_sums_by_label(tree,splus))
+      if ((verbose.lvl > 0)&(is.null(labels))) {
+        cat(get_sums_by_label(labels,splus))
       }
       #add drift loading
       next_fl <- add_factor(dat,splus,fl,driftprior,Fprior)
@@ -141,8 +142,8 @@ drift_fit <- function(tree,
     }
     sminus <- matrix(1L * (current_divergence < -eps), ncol = 1)
     if (sum(sminus) > 0 && K < Kmax) {
-      if (verbose.lvl > 0) {
-        cat(get_sums_by_label(tree,sminus))
+      if ((verbose.lvl > 0)&(is.null(labels))) {
+        cat(get_sums_by_label(labels,sminus))
       }
       #add drift loading
       next_fl <- add_factor(dat,sminus,fl,driftprior,Fprior)
@@ -164,24 +165,25 @@ drift_fit <- function(tree,
 }
 
 #' Fits a divergence factorization to the data
-#' 
-#' @param tree tree object; output of form_tree_from_file from fileIO_plotting.R. 
+#'
+#' @param dat data matrix. rows are samples, columns are features
 #' @param divprior prior for intermediate divergence loadings. Defaults to a point Laplace prior.
 #' @param driftprior prior for drift loadings. Defaults to a point exponential prior.
 #' @param Fprior prior for the factors. Defaults to a normal prior.
 #' @param Kmax maximum number of factors to add.
 #' @param min_pve If the pve for a factor is less than this tolerance, the factor is rejected
 #' @param verbose.lvl The level of verbosity of the function
-#' @param eps Tolerance for nonzero values in the loadings. 
-div_fit <- function(tree,
+#' @param eps Tolerance for nonzero values in the loadings.
+#' @param labels Ground truth data labels for testing purposes
+div_fit <- function(dat,
                       divprior = prior.point.laplace(),
                       driftprior = as.prior(ebnm.fn = ebnm_point_exponential,sign=1),
                       Fprior = prior.normal(),
                       Kmax = Inf,
                       min_pve = 0,
                       verbose.lvl = 0,
-                      eps=1e-2) {
-  dat <- tree$matrix
+                      eps=1e-2,
+                      labels=0) {
   #the first loading will be the all-ones vector
   ones <- matrix(1, nrow = nrow(dat), ncol = 1)
   #first factor will be least sq soln: argmin_f ||Y - ones t(f)||_F^2
@@ -217,8 +219,8 @@ div_fit <- function(tree,
     # TODO I think this is why the divergence factorization plots look weird?
     snonzero <- matrix(1L * (abs(current_divergence) > eps), ncol = 1)
     if (sum(snonzero) > 0 && (K != 2)) {
-      if (verbose.lvl > 0) {
-        cat(get_sums_by_label(tree,snonzero))
+      if ((verbose.lvl > 0)&(is.null(labels))) {
+        cat(get_sums_by_label(labels,snonzero))
       }
       #add drift loading
       next_fl <- add_factor(dat,snonzero,fl,driftprior,Fprior)
@@ -264,10 +266,10 @@ div_fit <- function(tree,
 
 #' fits a divergence factorization to the covariance matrix
 #' this function is less well tested
-#' 
+#'
 #' @param covmat the covariance matrix
 #' @param prior prop for the loadings. Defaults to a point Laplace prior.
-#' @param Kmax the maximum number of factors to add. Defaults to 1000 
+#' @param Kmax the maximum number of factors to add. Defaults to 1000
 div_cov_fit <- function(covmat, prior = prior.point.laplace(), Kmax = 1000) {
   fl <- div_fit(covmat, prior, Kmax)
   s2 <- max(0, mean(diag(covmat) - diag(fitted(fl))))
@@ -286,11 +288,11 @@ div_cov_fit <- function(covmat, prior = prior.point.laplace(), Kmax = 1000) {
 }
 
 #' Run drift and divergence factorizations
-#' 
+#'
 #' @param tree a vector that is interpreted as a tree object; the output of form_tree_from_file from fileIO_plotting.R
 #' @param Kmax parameter for the maximum number of factors to add
 #' @param eps tolerance for when values are nonzero
-#' 
+#'
 #' This function does not return anything, but instead saves the results into tree$trajectory
 run_methods <- function(tree,Kmax,eps){
   #drift factorization method
