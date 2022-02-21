@@ -228,7 +228,7 @@ run_methods <- function(tree,outfile){
 
 And then I run all the methods on the dataset for tree 1. The rest of the file can also be rerun for the other four trees, whose datasets are generated using similar assumptions but with different tree topologies. The methods from `drift_div_factorizations.R` save the computed EBMF factors to `output/ContinuousTrees`.
 
-```{r}
+```{r run methods}
 tree1 <- run_methods(tree1,'output/ContinuousTrees/tree1/EBMFfactors/')
 # tree2 <- run_methods(tree2,'output/ContinuousTrees/tree2/EBMFfactors/')
 # tree3 <- run_methods(tree3,'output/ContinuousTrees/tree3/EBMFfactors/')
