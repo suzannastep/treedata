@@ -11,7 +11,7 @@ library(scales)
 #' raw: selects columns Raw0:Raw499 in order to avoid the dimensionality-reduced data
 #' matrix: the raw data cast to a matrix
 #' dimred: the tsne dimensionality reducition from the csv file
-#' counts: the "raw counts" matrix, which is computed as min(0,round(2**(tree$raw)-1))
+#' counts: the "raw counts" matrix, which is computed as min(0,round(2**(tree$matrix)-1))
 #' dataset: counts and matrix wraped for dynverse functions, with prior information that Row0 is the starting cell
 #' trajectory: an empty vector for saving trajectory results
 form_tree_from_file <- function(filename){
@@ -24,7 +24,7 @@ form_tree_from_file <- function(filename){
     tree$dimred <- tree$csv %>%
         select(tsne0:tsne1)
     #As input, dynwrap requires raw counts and normalized (log2) expression data.
-    tree$counts <- round(2**(tree$raw)-1)
+    tree$counts <- round(2**(tree$matrix)-1)
     tree$counts[tree$counts<0] <- 0
     tree$dataset <- wrap_expression(
         expression = tree$matrix,

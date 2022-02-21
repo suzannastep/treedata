@@ -39,18 +39,18 @@ plot_nodetree <- function(tree,color=1+tree$labels,palette=c("#0000D2","#D2D2D2"
   pal <- colorRamp(palette)
   ## rescale color to be between 0 and 1, and 0.5 being the "zero" point
   newcolor <- color/max(abs(color)) / 2 + 0.5
-  ## use pal and alpha to get rgb value for color 
+  ## use pal and alpha to get rgb value for color
   newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
   ## make colored scatter plot
   plot(tree$dimred,col=newcolor,pch=20)
-  
+
   # draw arrows between parents and children
   ## get all the different labels of the nodes
   labels <- unique(tree$labels)
   ## get the nodes that are parents
   parents <- labels[1:(length(labels)/2)]
   ## initialize index of child and num children per node
-  childidx <- 2 
+  childidx <- 2
   children_per_node <- 2
   ## draw arrows
   for (parent in parents){
@@ -78,11 +78,11 @@ plot_continuoustree <- function(tree,color=tree$labels,palette=c("#0000D2","#D2D
   pal <- colorRamp(palette)
   ## rescale color to be between 0 and 1, and 0.5 being the "zero" point
   newcolor <- color/max(abs(color)) / 2 + 0.5
-  ## use pal and alpha to get rgb value for color 
+  ## use pal and alpha to get rgb value for color
   newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
   ## make colored scatter plot
   plot(tree$dimred,col=newcolor,pch=20)
-  
+
   # draw arrows along branches
   ## get all the different labels of the nodes
   labels <- unique(tree$labels)
@@ -101,7 +101,7 @@ plot_continuoustree(continuoustree,palette=1:7)
 
 ## The Methods
 
-The functions `drift_fit` and `div_fit` in `code/drift_div_factorizations.R` fit drift and divergence factorizations to the data using EBMF methods. It uses point-Laplace priors for divergence loadings, point-exponential priors for drift loadings, and normal priors on the factors. 
+The functions `drift_fit` and `div_fit` in `code/drift_div_factorizations.R` fit drift and divergence factorizations to the data using EBMF methods. It uses point-Laplace priors for divergence loadings, point-exponential priors for drift loadings, and normal priors on the factors.
 
 ## Performance on Node Trees
 We run the methods on node trees.
@@ -155,7 +155,7 @@ for (loadingnum in 1:numloadings){
 
 ## Issues and questions to think about for drift factorization fits
 
-* What should you choose eps to be? 
+* What should you choose eps to be?
     * It probably makes sense to use the local false sign rate to decide if a loading should be nonzero.
 * Stopping point-- it doesn't stop adding factors when it shouldn't, unfortunately. It does with node data, but not trajectory data
     * maybe some sort of spatial way of determining stopping? Like is this divergence you drawing a line in the sand, or is the split point close enough to the ancestral point that it's a reasonable split
@@ -165,5 +165,3 @@ for (loadingnum in 1:numloadings){
 * This works well with node datasets up to about 3 levels of splits. It breaks down a bit for 4 levels. This is likely due to the signal/noise ratio
 * When and how should you backfit? Or should we stick with a simple greedy approach?
 * The drift factorization seems more reliable in general than the divergence factorization in practice, but I'm not sure why.
-
-
