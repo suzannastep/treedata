@@ -62,12 +62,11 @@ In practice I actually just initialize a new flash object and then use the flash
 
 ```{r}
 #set up priors
-driftprior <- as.prior(ebnm.fn=ebnm_point_exponential,sign=1)
+driftprior <- ebnm_point_exponential
 Fprior <- ebnm_normal
 #initialize with binary L and previous value for F
-pm <- nodetree$trajectory$lfsr_drift_backfit$loadings.pm
-Linit <- pm[[1]] > 0
-Finit <- pm[[2]]
+Linit <- nodetree$trajectory$lfsr_drift_backfit$L.pm > 0
+Finit <- nodetree$trajectory$lfsr_drift_backfit$F.pm
 K <- nodetree$trajectory$lfsr_drift_backfit$n.factors
 #fit F
 nodetree$trajectory$lfsr_binary_loadings <- flash.init(nodetree$matrix) %>%
@@ -75,7 +74,7 @@ nodetree$trajectory$lfsr_binary_loadings <- flash.init(nodetree$matrix) %>%
     flash.init.factors(list(Linit,Finit),
                        ebnm.fn=c(driftprior,Fprior)) %>%
     flash.fix.factors(kset=1:K,mode=1) %>%
-    flash.backfit()
+    flash.backfit(extrapolate=FALSE)
 #plot results
 plot_nodetree_loadings(nodetree,loadings=nodetree$trajectory$lfsr_binary_loadings$L.pm)
 ```
@@ -86,7 +85,8 @@ It definitely finds the correct structure, but one could picture it may not be e
 
 Alternatively, you could force the loadings to be binary as you go. This results in roughly the same thing, but perhaps with slighly better results. I changed the functionality of the `add_factor` function to allow for this.
 
-```{r}
+```{r, eval=FALSE}
+#TODO THROWS SE error
 nodetree$trajectory$lfsr_drift_force_binary <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,allfixed=TRUE)
 plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_drift_force_binary$L.pm)
 ```
@@ -95,7 +95,7 @@ plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_drift_force_binary$L.pm
 
 Backfitting after enforcing the binary structure doesn't seem to change anything.
 
-```{r}
+```{r, eval=FALSE}
 nodetree$trajectory$lfsr_drift_force_binary_backfit <- flash.backfit(nodetree$trajectory$lfsr_drift_force_binary)
 plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_drift_force_binary_backfit$L.pm)
 ```
@@ -114,7 +114,7 @@ plot_nodetree_loadings(nodetree,res$L.pm)
 
 Here are some interesting results using the enforced binary structure.
 
-First is a noisy dataset. We see in these results that with a smaller LFSR tolerance, it detects less structure, as one might anticipate. In some ways the local false sign rate allows us to specify how sure we want to be that we're really finding tree structure. TODO why isn't it working this time?
+First is a noisy dataset. We see in these results that with a smaller LFSR tolerance, it detects less structure, as one might anticipate. In some ways the local false sign rate allows us to specify how sure we want to be that we're really finding tree structure. UPDATE: with new flashier package, it doesn't find the additional structure with higher `lfsr_tol`.
 
 ```{r}
 nodetree <- form_tree_from_file('data/NodeTrees/NodeTree3/NodeTree3.csv')
@@ -147,19 +147,34 @@ plot_nodetree_loadings(nodetree,res$L.pm)
 
 ## Just using leaf data
 
-Here is the algorithm run on a data set with just leaf data.
+Here is the algorithm run on a data set with just leaf data. Unfortunately, it only added one factor. I this is beacuse the LFSR's are numerically close to zero.
 
 ```{r}
 nodetree <- form_tree_from_file('data/NodeTrees/NodeTree1/NodeTree1.csv')
-
-#recreate colormap for this nodetree's labels
-color <- nodetree$labels
-pal <- colorRamp(palette)
-newcolor <- color/max(abs(color)) / 2 + 0.5
-newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
-#run method
-res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-3)
-plot_nodetree_loadings(nodetree,res$L.pm)
+nodetree$IsLeaf = nodetree$csv$IsLeaf=="True"
+#run method on leaf data
+res_lfsr <- lfsr_algorithm(dat=nodetree$matrix[nodetree$IsLeaf,],
+                      labels=nodetree$labels[nodetree$IsLeaf],
+                      lfsr_tol=1e-3)
+print(max(res_lfsr$L.lfsr,na.rm = TRUE))
+#try divergence fit?
+res_div <- div_fit(dat=nodetree$matrix[nodetree$IsLeaf,],
+                      labels=nodetree$labels[nodetree$IsLeaf])
+plot_nodetree_loadings(nodetree,res_div$L.pm) #works great
+print(max(res_div$L.lfsr,na.rm = TRUE))
+#try drift fit?
+res_drift <- drift_fit(dat=nodetree$matrix[nodetree$IsLeaf,],
+                      labels=nodetree$labels[nodetree$IsLeaf])
+plot_nodetree_loadings(nodetree,res_drift$L.pm) #works great
+print(max(res_drift$L.lfsr,na.rm = TRUE))
+#run method on leaf data with tiny lfsr tol
+res_lfsr <- lfsr_algorithm(dat=nodetree$matrix[nodetree$IsLeaf,],
+                      labels=nodetree$labels[nodetree$IsLeaf],
+                      lfsr_tol=1e-10)
+# TODO I think all the lfsrs are nans bc they're all fixed.
+# why is this a non issue otherwise?
+print(max(res_lfsr$L.lfsr,na.rm = TRUE)) #all lfsrs are nans...
+plot_nodetree_loadings(nodetree,res_lfsr$L.pm) #works great
 ```
 
 ## Does setting L to be binary give the "correct" F?
