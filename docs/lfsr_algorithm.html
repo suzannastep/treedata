@@ -367,7 +367,7 @@ div.tocify {
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -376,7 +376,7 @@ div.tocify {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -385,10 +385,10 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2022-02-07
+<strong>Last updated:</strong> 2022-02-21
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>treedata.nosync/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
@@ -404,12 +404,12 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
@@ -476,16 +476,16 @@ This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a> analysi
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomsuzannasteptreedatatree9e0712c47cf563db063f59fa6650fad4b713951ctargetblank9e0712ca"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/suzannastep/treedata/tree/9e0712c47cf563db063f59fa6650fad4b713951c" target="_blank">9e0712c</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomsuzannasteptreedatatree80b384a095ce165670e07e8a05ead1d4dca831c9targetblank80b384aa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/suzannastep/treedata/tree/80b384a095ce165670e07e8a05ead1d4dca831c9" target="_blank">80b384a</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomsuzannasteptreedatatree9e0712c47cf563db063f59fa6650fad4b713951ctargetblank9e0712ca" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomsuzannasteptreedatatree80b384a095ce165670e07e8a05ead1d4dca831c9targetblank80b384aa" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/suzannastep/treedata/tree/9e0712c47cf563db063f59fa6650fad4b713951c" target="_blank">9e0712c</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/suzannastep/treedata/tree/80b384a095ce165670e07e8a05ead1d4dca831c9" target="_blank">80b384a</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -494,6 +494,7 @@ Note that you need to be careful to ensure that all relevant files for the analy
 Ignored files:
     Ignored:    .DS_Store
     Ignored:    .Rhistory
+    Ignored:    analysis/figure/
     Ignored:    data/.DS_Store
     Ignored:    data/ContinuousTrees/.DS_Store
     Ignored:    data/NodeTrees/.DS_Store
@@ -541,6 +542,9 @@ Ignored files:
     Ignored:    output/NodeTrees/NodeTree9/.DS_Store
     Ignored:    output/NodeTrees/NodeTree9/EBMFfactors/.DS_Store
 
+Unstaged changes:
+    Modified:   analysis/lfsr_algorithm.Rmd
+
 </code></pre>
 <p>
 Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
@@ -578,6 +582,91 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/suzannastep/treedata/blob/80b384a095ce165670e07e8a05ead1d4dca831c9/analysis/lfsr_algorithm.Rmd" target="_blank">80b384a</a>
+</td>
+<td>
+Sue Parkinson
+</td>
+<td>
+2022-02-21
+</td>
+<td>
+update with new flashier &amp; leaf only dataset
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/suzannastep/treedata/blob/46a5ae82cbbb8c6e721fc0fc43b6f435f382f0fc/analysis/lfsr_algorithm.Rmd" target="_blank">46a5ae8</a>
+</td>
+<td>
+Sue Parkinson
+</td>
+<td>
+2022-02-21
+</td>
+<td>
+update for new version of flashier
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/suzannastep/treedata/46a5ae82cbbb8c6e721fc0fc43b6f435f382f0fc/docs/lfsr_algorithm.html" target="_blank">46a5ae8</a>
+</td>
+<td>
+Sue Parkinson
+</td>
+<td>
+2022-02-21
+</td>
+<td>
+update for new version of flashier
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/suzannastep/treedata/blob/6d4dba290ec219adfd7d61be46340fb1e6dfe1f6/analysis/lfsr_algorithm.Rmd" target="_blank">6d4dba2</a>
+</td>
+<td>
+Sue Parkinson
+</td>
+<td>
+2022-02-21
+</td>
+<td>
+changing how labels are handled, add function for plotting nodetree loadings
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/suzannastep/treedata/89db76c12ec63e0518433180a98a9db50f39afaa/docs/lfsr_algorithm.html" target="_blank">89db76c</a>
+</td>
+<td>
+Sue Parkinson
+</td>
+<td>
+2022-02-07
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -689,69 +778,27 @@ start lfsr algorithm
 </div>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
+<p>First, I load in the code from the <code>code/fileIO_plotting.R</code> and <code>code/lfsr_algorithm.R</code>.</p>
 <pre class="r"><code>source(&quot;code/fileIO_plotting.R&quot;)
 source(&quot;code/lfsr_algorithm.R&quot;)</code></pre>
 </div>
 <div id="the-data" class="section level2">
 <h2>The Data</h2>
-<p>Loading in the simulated test data, and plot a dimensionality reduction.</p>
+<p>Load in the simulated test data, and plot a dimensionality reduction.</p>
 <pre class="r"><code>nodetree &lt;- form_tree_from_file(&#39;data/NodeTrees/NodeTree4/NodeTree4.csv&#39;)
-continuoustree &lt;- form_tree_from_file(&#39;data/ContinuousTrees/tree1.csv&#39;)
-palette=1:20
-plot_nodetree(nodetree,palette=palette)</code></pre>
-<p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-2-1">
-Past versions of unnamed-chunk-2-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-2-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/suzannastep/treedata/blob/c59dc856ba156b85b41a163e0cab7bb0e881a97d/docs/figure/lfsr_algorithm.Rmd/unnamed-chunk-2-1.png" target="_blank">c59dc85</a>
-</td>
-<td>
-Sue Parkinson
-</td>
-<td>
-2022-02-02
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+palette=1:20</code></pre>
 </div>
 <div id="algorithm-performance" class="section level2">
 <h2>Algorithm Performance</h2>
 <p>Compute the drift factorization using LFSR.</p>
-<pre class="r"><code>nodetree$trajectory$lfsr_drift &lt;- lfsr_algorithm(nodetree)</code></pre>
+<pre class="r"><code>nodetree$trajectory$lfsr_drift &lt;- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels)</code></pre>
 </div>
 <div id="visualizing-the-loadings" class="section level2">
 <h2>Visualizing the Loadings</h2>
-<p>The first plot below is the dimensionality reduction colored according to the loadings for each factor. We can see that it definitely picks up on the correct tree structure.</p>
-<pre class="r"><code>loadings &lt;- nodetree$trajectory$lfsr_drift$loadings.pm[[1]]
-numloadings &lt;- dim(loadings)[2]
-par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
-for (loadingnum in 1:numloadings){
-  plot_nodetree(nodetree,color=loadings[,loadingnum])
-}</code></pre>
+<p>When we visualize loadings, I use the function <code>plot_nodetree_loadings</code> from <code>code/fileIO_plotting</code>. The first plot created by this function is the dimensionality reduction colored according to the loadings for each factor. The second plot shows the actual numerical values of each loading.</p>
+<p>Even without back fitting, the loadings do a good job of detecting the tree structure. Unfortunately, L is not binary; that is, the loadings are not constant on each factor.</p>
+<pre class="r"><code>plot_nodetree_loadings(nodetree,
+                       loadings=nodetree$trajectory$lfsr_drift$L.pm)</code></pre>
 <p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-1">
@@ -790,19 +837,6 @@ Sue Parkinson
 </table>
 </div>
 </div>
-<pre class="r"><code>par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
-for (loadingnum in 1:numloadings){
-    color &lt;- nodetree$csv$Labels
-    #create colormap
-    ## create color palette function
-    pal &lt;- colorRamp(palette)
-    ## rescale color to be between 0 and 1, and 0.5 being the &quot;zero&quot; point
-    newcolor &lt;- color/max(abs(color)) / 2 + 0.5
-    ## use pal and alpha to get rgb value for color 
-    newcolor &lt;- alpha(rgb(pal(newcolor)/255),0.4)
-    ## make colored scatter plot
-    plot(loadings[,loadingnum],col=newcolor)
-}</code></pre>
 <p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-4-2.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-4-2">
@@ -841,18 +875,35 @@ Sue Parkinson
 </table>
 </div>
 </div>
-<p>The second plot shows the actual values of the loadings, with the groups colored the same as they were in the first dimensionality reduction. Unfortunately it doesn’t give constant loadings.</p>
 </div>
 <div id="backfitting" class="section level2">
 <h2>Backfitting</h2>
 <p>To try to get closer to a true drift factorization, I try to backfit, which by default respects the sparsity pattern in the loadings. Unfortunately, this makes the factorization closer to a naive factorization which is 1 on the loadings for one label, and zero elsewhere. This decreases the ability to interpret these loadings as detecting how populations co-descend from a particular parent node.</p>
-<pre class="r"><code>nodetree$trajectory$lfsr_drift_backfit &lt;- flash.backfit(nodetree$trajectory$lfsr_drift)</code></pre>
-<pre class="r"><code>loadings &lt;- nodetree$trajectory$lfsr_drift_backfit$loadings.pm[[1]]
-numloadings &lt;- dim(loadings)[2]
-par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
-for (loadingnum in 1:numloadings){
-  plot_nodetree(nodetree,color=loadings[,loadingnum])
-}</code></pre>
+<pre class="r"><code>nodetree$trajectory$lfsr_drift_backfit &lt;- flash.backfit(nodetree$trajectory$lfsr_drift)
+plot_nodetree_loadings(nodetree,
+                       loadings=nodetree$trajectory$lfsr_drift_backfit$L.pm)</code></pre>
+<p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-5-2.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="first-set-loadings-to-be-binary-and-then-backfit" class="section level2">
+<h2>First set loadings to be binary and then backfit?</h2>
+<p>One sort of silly thing I tried to do is take the sparsity structure defined by the first algorithm, force L to be a binary matrix, and then fit the factors to that. It’s sort of a brute force algorithm.</p>
+<p>In practice I actually just initialize a new flash object and then use the flash.fix.factors and flash.backfit to initialize with binary loadings</p>
+<pre class="r"><code>#set up priors
+driftprior &lt;- ebnm_point_exponential
+Fprior &lt;- ebnm_normal
+#initialize with binary L and previous value for F
+Linit &lt;- nodetree$trajectory$lfsr_drift_backfit$L.pm &gt; 0
+Finit &lt;- nodetree$trajectory$lfsr_drift_backfit$F.pm
+K &lt;- nodetree$trajectory$lfsr_drift_backfit$n.factors
+#fit F
+nodetree$trajectory$lfsr_binary_loadings &lt;- flash.init(nodetree$matrix) %&gt;%
+    flash.set.verbose(0) %&gt;%
+    flash.init.factors(list(Linit,Finit),
+                       ebnm.fn=c(driftprior,Fprior)) %&gt;%
+    flash.fix.factors(kset=1:K,mode=1) %&gt;%
+    flash.backfit(extrapolate=FALSE)
+#plot results
+plot_nodetree_loadings(nodetree,loadings=nodetree$trajectory$lfsr_binary_loadings$L.pm)</code></pre>
 <p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-6-1">
@@ -891,19 +942,6 @@ Sue Parkinson
 </table>
 </div>
 </div>
-<pre class="r"><code>par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
-for (loadingnum in 1:numloadings){
-    color &lt;- nodetree$csv$Labels
-    #create colormap
-    ## create color palette function
-    pal &lt;- colorRamp(palette)
-    ## rescale color to be between 0 and 1, and 0.5 being the &quot;zero&quot; point
-    newcolor &lt;- color/max(abs(color)) / 2 + 0.5
-    ## use pal and alpha to get rgb value for color 
-    newcolor &lt;- alpha(rgb(pal(newcolor)/255),0.4)
-    ## make colored scatter plot
-    plot(loadings[,loadingnum],col=newcolor)
-}</code></pre>
 <p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-6-2.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-6-2">
@@ -942,195 +980,106 @@ Sue Parkinson
 </table>
 </div>
 </div>
+<p>It definitely finds the correct structure, but one could picture it may not be entirely robust. This is something to potentially explore.</p>
 </div>
-<div id="first-set-loadings-to-be-binary-and-then-backfit" class="section level2">
-<h2>First set loadings to be binary and then backfit?</h2>
-<p>One sort of silly thing I tried to do is take the sparsity structure defined by the first algorithm, force L to be a binary matrix, and then fit the factors to that. It’s sort of a brute force algorithm.</p>
-<p>In practice I actually just initialize a new flash object and then use the flash.fix.factors and flash.backfit to initialize with binary loadings</p>
-<pre class="r"><code>verbose.lvl &lt;- 1
-driftprior &lt;- as.prior(ebnm.fn=ebnm_point_exponential,sign=1)
-Fprior &lt;- prior.normal()
-pm &lt;- nodetree$trajectory$lfsr_drift_backfit$loadings.pm
-Linit &lt;- pm[[1]] &gt; 0
-Finit &lt;- pm[[2]]
-K &lt;- nodetree$trajectory$lfsr_drift_backfit$n.factors
-nodetree$trajectory$lfsr_binary_loadings &lt;- flash.init(nodetree$matrix) %&gt;%
-    flash.set.verbose(verbose.lvl) %&gt;%
-    flash.init.factors(list(Linit,Finit),
-                       ebnm.fn=c(driftprior,Fprior)) %&gt;%
-    flash.fix.factors(kset=1:K,mode=1) %&gt;%
-    flash.backfit()</code></pre>
-<pre><code>Backfitting 15 factors (tolerance: 1.12e-02)...
-  Difference between iterations is within 1.0e+04...
-  Difference between iterations is within 1.0e+03...
+<div id="force-binary-loadings-as-you-go" class="section level2">
+<h2>Force binary loadings as you go?</h2>
+<p>Alternatively, you could force the loadings to be binary as you go. This results in roughly the same thing, but perhaps with slighly better results. I changed the functionality of the <code>add_factor</code> function to allow for this.</p>
+<pre class="r"><code>#TODO THROWS SE error
+nodetree$trajectory$lfsr_drift_force_binary &lt;- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,allfixed=TRUE)
+plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_drift_force_binary$L.pm)</code></pre>
+</div>
+<div id="backfit-after-forcing-to-be-zeros-and-ones" class="section level2">
+<h2>Backfit after forcing to be zeros and ones?</h2>
+<p>Backfitting after enforcing the binary structure doesn’t seem to change anything.</p>
+<pre class="r"><code>nodetree$trajectory$lfsr_drift_force_binary_backfit &lt;- flash.backfit(nodetree$trajectory$lfsr_drift_force_binary)
+plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_drift_force_binary_backfit$L.pm)</code></pre>
+</div>
+<div id="sometimes-gives-error-when-all-the-standard-deviations-are-zero" class="section level2">
+<h2>Sometimes gives error when all the standard deviations are zero</h2>
+<p>Unfortunately, I wasn’t able to run this algorithm on certain datasets because I kept getting an error about standard deviations being zero. This happened with the nodetree dataset seen above with <code>lfsr_tol=1e-2</code> instead of <code>lfsr_tol=1e-3</code>, and with the<code>continuoustree</code> dataset. However, changing to the internally enforced binary algorithm fixed this.</p>
+<pre class="r"><code>#running this code gives an error
+res &lt;- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-2,verbose=1)
+plot_nodetree_loadings(nodetree,res$L.pm)</code></pre>
+</div>
+<div id="some-interesting-results-on-certain-datasets" class="section level2">
+<h2>Some interesting results on certain datasets</h2>
+<p>Here are some interesting results using the enforced binary structure.</p>
+<p>First is a noisy dataset. We see in these results that with a smaller LFSR tolerance, it detects less structure, as one might anticipate. In some ways the local false sign rate allows us to specify how sure we want to be that we’re really finding tree structure. UPDATE: with new flashier package, it doesn’t find the additional structure with higher <code>lfsr_tol</code>.</p>
+<pre class="r"><code>nodetree &lt;- form_tree_from_file(&#39;data/NodeTrees/NodeTree3/NodeTree3.csv&#39;)
+#run method with lfsr 1e-2
+# TODO raises standard errors must be positive and nonzero error -- why?
+res &lt;- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-1,verbose=1)</code></pre>
+<pre><code>Backfitting 1 factors (tolerance: 5.22e-03)...
+An update to factor 1 decreased the objective by 7.112e-01.
+Wrapping up...
+Done.
+Backfitting 1 factors (tolerance: 5.22e-03)...
   Difference between iterations is within 1.0e+02...
   Difference between iterations is within 1.0e+01...
   Difference between iterations is within 1.0e+00...
   Difference between iterations is within 1.0e-01...
+  Difference between iterations is within 1.0e-02...
 Wrapping up...
-Done.</code></pre>
-<pre class="r"><code>nodetree$trajectory$lfsr_binary_loadings</code></pre>
-<pre><code>Flash object with 15 factors.
-  Proportion of variance explained*:
-    Factor 2: 0.144
-    Factor 3: 0.132
-    Factor 4: 0.072
-    Factor 5: 0.060
-    Factor 6: 0.055
-    Factor 7: 0.063
-    Factor 8: 0.020
-    Factor 9: 0.021
-    Factor 10: 0.019
-    Factor 11: 0.020
-    Factor 12: 0.019
-    Factor 13: 0.021
-    Factor 14: 0.018
-    Factor 15: 0.022
-    *Factors with PVE &lt; 0.001 are omitted from this summary.
-  Variational lower bound: -1082944.068</code></pre>
-<pre class="r"><code>loadings &lt;- nodetree$trajectory$lfsr_binary_loadings$loadings.pm[[1]]
-numloadings &lt;- dim(loadings)[2]
-par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
-for (loadingnum in 1:numloadings){
-  plot_nodetree(nodetree,color=loadings[,loadingnum])
-}</code></pre>
-<p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-8-1">
-Past versions of unnamed-chunk-8-1.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-8-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/suzannastep/treedata/blob/c59dc856ba156b85b41a163e0cab7bb0e881a97d/docs/figure/lfsr_algorithm.Rmd/unnamed-chunk-8-1.png" target="_blank">c59dc85</a>
-</td>
-<td>
-Sue Parkinson
-</td>
-<td>
-2022-02-02
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<pre class="r"><code>par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
-for (loadingnum in 1:numloadings){
-    color &lt;- nodetree$csv$Labels
-    #create colormap
-    ## create color palette function
-    pal &lt;- colorRamp(palette)
-    ## rescale color to be between 0 and 1, and 0.5 being the &quot;zero&quot; point
-    newcolor &lt;- color/max(abs(color)) / 2 + 0.5
-    ## use pal and alpha to get rgb value for color 
-    newcolor &lt;- alpha(rgb(pal(newcolor)/255),0.4)
-    ## make colored scatter plot
-    plot(loadings[,loadingnum],col=newcolor)
-}</code></pre>
-<p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-8-2.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-8-2">
-Past versions of unnamed-chunk-8-2.png
-</button>
-</p>
-<div id="fig-unnamed-chunk-8-2" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/suzannastep/treedata/blob/c59dc856ba156b85b41a163e0cab7bb0e881a97d/docs/figure/lfsr_algorithm.Rmd/unnamed-chunk-8-2.png" target="_blank">c59dc85</a>
-</td>
-<td>
-Sue Parkinson
-</td>
-<td>
-2022-02-02
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-<div id="force-binary-loadings-as-you-go" class="section level2">
-<h2>Force binary loadings as you go?</h2>
-<p>Alternatively, you could force the loadings to be binary as you go. This results in roughly the same thing.</p>
-<pre class="r"><code>#requires changing the add_factor function to fix all the loadings as you go
-add_factor &lt;- function(dat,loading,fl,prior,Fprior){
-  K &lt;- fl$n.factors
-  #initializes factor to the least squares solution
-  ls.soln  &lt;- t(crossprod(loading,  dat - fitted(fl))/sum(loading))
-  EF &lt;- list(loading, ls.soln)
-  #create new flash object
-  next_fl &lt;- fl %&gt;%
-    flash.init.factors(
-      EF,
-      ebnm.fn = c(prior,Fprior)
-    ) %&gt;%
-    # KEY CHANGE HERE: is.fixed = TRUE, so entire loading is fixed to be binary
-    flash.fix.factors(kset = K + 1, mode = 1L, is.fixed = TRUE) %&gt;%
-    #only backfit the most recently added factor
-    flash.backfit(kset = K + 1)
-  return(next_fl)
-}
-nodetree$trajectory$lfsr_drift_force_binary &lt;- lfsr_algorithm(nodetree)
-nodetree$trajectory$lfsr_drift_force_binary</code></pre>
-<pre><code>Flash object with 15 factors.
-  Proportion of variance explained:
-    Factor 1: 0.180
-    Factor 2: 0.105
-    Factor 3: 0.104
-    Factor 4: 0.042
-    Factor 5: 0.043
-    Factor 6: 0.037
-    Factor 7: 0.035
-    Factor 8: 0.010
-    Factor 9: 0.010
-    Factor 10: 0.012
-    Factor 11: 0.012
-    Factor 12: 0.012
-    Factor 13: 0.011
-    Factor 14: 0.011
-    Factor 15: 0.012
-  Variational lower bound: -1137867.402</code></pre>
-<pre class="r"><code>loadings &lt;- nodetree$trajectory$lfsr_drift_force_binary$loadings.pm[[1]]
-numloadings &lt;- dim(loadings)[2]
-par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
-for (loadingnum in 1:numloadings){
-  plot_nodetree(nodetree,color=loadings[,loadingnum])
-}</code></pre>
+Done.
+Length of Queue 1 
+Backfitting 1 factors (tolerance: 5.22e-03)...
+  Difference between iterations is within 1.0e+00...
+  Difference between iterations is within 1.0e-01...
+  Difference between iterations is within 1.0e-02...
+Wrapping up...
+Done.
+Backfitting 1 factors (tolerance: 5.22e-03)...
+  Difference between iterations is within 1.0e+02...
+  Difference between iterations is within 1.0e+01...
+  Difference between iterations is within 1.0e+00...
+  Difference between iterations is within 1.0e-01...
+  Difference between iterations is within 1.0e-02...
+Wrapping up...
+Done.
+Backfitting 1 factors (tolerance: 5.22e-03)...
+  Difference between iterations is within 1.0e+00...
+  Difference between iterations is within 1.0e-01...
+  Difference between iterations is within 1.0e-02...
+Wrapping up...
+Done.
+Backfitting 1 factors (tolerance: 5.22e-03)...
+  --Estimate of factor 4 is numerically zero!
+  Difference between iterations is within 1.0e+01...
+Wrapping up...
+Done.
+Factors: 3 
+Length of Queue 2 
+Backfitting 1 factors (tolerance: 5.22e-03)...
+  Difference between iterations is within 1.0e+00...
+  Difference between iterations is within 1.0e-01...
+  Difference between iterations is within 1.0e-02...
+Wrapping up...
+Done.
+Backfitting 1 factors (tolerance: 5.22e-03)...
+  --Estimate of factor 5 is numerically zero!
+  Difference between iterations is within 1.0e+01...
+Wrapping up...
+Done.
+Backfitting 1 factors (tolerance: 5.22e-03)...
+  Difference between iterations is within 1.0e+00...
+  Difference between iterations is within 1.0e-01...
+  Difference between iterations is within 1.0e-02...
+Wrapping up...
+Done.
+Backfitting 1 factors (tolerance: 5.22e-03)...
+  --Estimate of factor 6 is numerically zero!
+  Difference between iterations is within 1.0e+01...
+Wrapping up...
+Done.
+Factors: 5 
+Length of Queue 3 
+Factors: 5 
+Length of Queue 2 
+Factors: 5 
+Length of Queue 1 
+Factors: 5 </code></pre>
+<pre class="r"><code>plot_nodetree_loadings(nodetree,res$L.pm)</code></pre>
 <p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-1">
@@ -1169,19 +1118,9 @@ Sue Parkinson
 </table>
 </div>
 </div>
-<pre class="r"><code>par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
-for (loadingnum in 1:numloadings){
-    color &lt;- nodetree$csv$Labels
-    #create colormap
-    ## create color palette function
-    pal &lt;- colorRamp(palette)
-    ## rescale color to be between 0 and 1, and 0.5 being the &quot;zero&quot; point
-    newcolor &lt;- color/max(abs(color)) / 2 + 0.5
-    ## use pal and alpha to get rgb value for color 
-    newcolor &lt;- alpha(rgb(pal(newcolor)/255),0.4)
-    ## make colored scatter plot
-    plot(loadings[,loadingnum],col=newcolor)
-}</code></pre>
+<pre class="r"><code>#run method with lfsr 1e-2
+res &lt;- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-2)
+plot_nodetree_loadings(nodetree,res$L.pm)</code></pre>
 <p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-10-2.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-10-2">
@@ -1220,17 +1159,41 @@ Sue Parkinson
 </table>
 </div>
 </div>
+<p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-10-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#run method with lfsr 1e-3
+res &lt;- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-3)
+plot_nodetree_loadings(nodetree,res$L.pm)</code></pre>
+<p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-10-4.png" width="672" style="display: block; margin: auto;" /><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-10-5.png" width="672" style="display: block; margin: auto;" /><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-10-6.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Also, a very simple tree, which it recovers very well.</p>
+<pre class="r"><code>nodetree &lt;- form_tree_from_file(&#39;data/NodeTrees/NodeTree1/NodeTree1.csv&#39;)
+
+#recreate colormap for this nodetree&#39;s labels
+color &lt;- nodetree$labels
+pal &lt;- colorRamp(palette)
+newcolor &lt;- color/max(abs(color)) / 2 + 0.5
+newcolor &lt;- alpha(rgb(pal(newcolor)/255),0.4)
+#run method
+res &lt;- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-3)
+plot_nodetree_loadings(nodetree,res$L.pm)</code></pre>
+<p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-11-2.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
-<div id="backfit-after-forcing-to-be-zeros-and-ones" class="section level2">
-<h2>Backfit after forcing to be zeros and ones?</h2>
-<p>Backfitting after enforcing the binary structure doesn’t seem to change anything.</p>
-<pre class="r"><code>nodetree$trajectory$lfsr_drift_force_binary_backfit &lt;- flash.backfit(nodetree$trajectory$lfsr_drift_force_binary)</code></pre>
-<pre class="r"><code>loadings &lt;- nodetree$trajectory$lfsr_drift_force_binary_backfit$loadings.pm[[1]]
-numloadings &lt;- dim(loadings)[2]
-par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
-for (loadingnum in 1:numloadings){
-  plot_nodetree(nodetree,color=loadings[,loadingnum])
-}</code></pre>
+<div id="just-using-leaf-data" class="section level2">
+<h2>Just using leaf data</h2>
+<p>Here is the algorithm run on a data set with just leaf data. Unfortunately, it only added one factor. I this is beacuse the LFSR’s are numerically close to zero.</p>
+<pre class="r"><code>nodetree &lt;- form_tree_from_file(&#39;data/NodeTrees/NodeTree1/NodeTree1.csv&#39;)
+nodetree$IsLeaf = nodetree$csv$IsLeaf==&quot;True&quot;
+#run method on leaf data
+res_lfsr &lt;- lfsr_algorithm(dat=nodetree$matrix[nodetree$IsLeaf,],
+                      labels=nodetree$labels[nodetree$IsLeaf],
+                      lfsr_tol=1e-3)
+print(max(res_lfsr$L.lfsr,na.rm = TRUE))</code></pre>
+<pre><code>Warning in max(res_lfsr$L.lfsr, na.rm = TRUE): no non-missing arguments to max;
+returning -Inf</code></pre>
+<pre><code>[1] -Inf</code></pre>
+<pre class="r"><code>#try divergence fit?
+res_div &lt;- div_fit(dat=nodetree$matrix[nodetree$IsLeaf,],
+                      labels=nodetree$labels[nodetree$IsLeaf])
+plot_nodetree_loadings(nodetree,res_div$L.pm) #works great</code></pre>
 <p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-12-1">
@@ -1269,19 +1232,6 @@ Sue Parkinson
 </table>
 </div>
 </div>
-<pre class="r"><code>par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))    
-for (loadingnum in 1:numloadings){
-    color &lt;- nodetree$csv$Labels
-    #create colormap
-    ## create color palette function
-    pal &lt;- colorRamp(palette)
-    ## rescale color to be between 0 and 1, and 0.5 being the &quot;zero&quot; point
-    newcolor &lt;- color/max(abs(color)) / 2 + 0.5
-    ## use pal and alpha to get rgb value for color 
-    newcolor &lt;- alpha(rgb(pal(newcolor)/255),0.4)
-    ## make colored scatter plot
-    plot(loadings[,loadingnum],col=newcolor)
-}</code></pre>
 <p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-12-2.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-12-2">
@@ -1320,12 +1270,100 @@ Sue Parkinson
 </table>
 </div>
 </div>
+<pre class="r"><code>print(max(res_div$L.lfsr,na.rm = TRUE))</code></pre>
+<pre><code>[1] 4.588846e-06</code></pre>
+<pre class="r"><code>#try drift fit?
+res_drift &lt;- drift_fit(dat=nodetree$matrix[nodetree$IsLeaf,],
+                      labels=nodetree$labels[nodetree$IsLeaf])
+plot_nodetree_loadings(nodetree,res_drift$L.pm) #works great</code></pre>
+<p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-12-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>print(max(res_drift$L.lfsr,na.rm = TRUE))</code></pre>
+<pre><code>[1] 0</code></pre>
+<pre class="r"><code>#run method on leaf data with tiny lfsr tol
+res_lfsr &lt;- lfsr_algorithm(dat=nodetree$matrix[nodetree$IsLeaf,],
+                      labels=nodetree$labels[nodetree$IsLeaf],
+                      lfsr_tol=1e-10)
+# TODO I think all the lfsrs are nans bc they&#39;re all fixed.
+# why is this a non issue otherwise?
+print(max(res_lfsr$L.lfsr,na.rm = TRUE)) #all lfsrs are nans...</code></pre>
+<pre><code>Warning in max(res_lfsr$L.lfsr, na.rm = TRUE): no non-missing arguments to max;
+returning -Inf</code></pre>
+<pre><code>[1] -Inf</code></pre>
+<pre class="r"><code>plot_nodetree_loadings(nodetree,res_lfsr$L.pm) #works great</code></pre>
+<p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-12-4.png" width="672" style="display: block; margin: auto;" /><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-12-5.png" width="672" style="display: block; margin: auto;" /><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-12-6.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
-<div id="sometimes-gives-error-when-all-the-standard-deviations-are-zero" class="section level1">
-<h1>sometimes gives error when all the standard deviations are zero</h1>
-<p>Unfortunately, I wasn’t able to run this algorithm on other, potentially more intersting datasets because I kept getting an error about standard deviations being zero. This happened with the nodetree dataset seen above with <code>lfsr_tol=1e-2</code> instead of <code>lfsr_tol=1e-3</code>, and with the<code>continuous tree</code> dataset.</p>
-<pre class="r"><code>lfsr_algorithm(nodetree,lfsr_tol=1e-2,verbose=1)
-lfsr_algorithm(continuoustree,verbose=1)</code></pre>
+<div id="does-setting-l-to-be-binary-give-the-correct-f" class="section level2">
+<h2>Does setting L to be binary give the “correct” F?</h2>
+<p>Lets check by finding the true F and comparing against the computed F.</p>
+<pre class="r"><code>#get computed F
+computedF &lt;- res$F.pm
+#get true F
+labels &lt;- unique(nodetree$labels)
+trueF &lt;- matrix(nrow=dim(nodetree$matrix)[2],ncol=length(labels))
+## first factor is the mean of the root node
+trueF[,1] &lt;- colMeans(nodetree$matrix[nodetree$labels == 0,])
+## get the nodes that are parents
+parents &lt;- labels[1:(length(labels)/2)]
+## initialize index of child and num children per node
+childidx &lt;- 2
+children_per_node &lt;- 2
+## differences are the factors
+for (parent in parents){
+    parent_mean &lt;- colMeans(nodetree$matrix[nodetree$labels == parent,])
+    for (childnum in 1:children_per_node){
+        child &lt;- labels[childidx]
+        child_mean &lt;- colMeans(nodetree$matrix[nodetree$labels == child,])
+        factor &lt;- parent_mean - child_mean
+        trueF[,childidx] &lt;- factor
+        childidx &lt;- childidx + 1
+    }
+}</code></pre>
+<p>First, we should compute the relative error in F. I first rescale both matrices to account for an arbitrary scaling factor.</p>
+<pre class="r"><code>maxabs &lt;- function(data){
+    return(max(abs(data)))
+}
+trueF &lt;- trueF/apply(trueF, 2,max)
+computedF &lt;- computedF/apply(computedF, 2,max)</code></pre>
+<pre class="r"><code>library(&#39;plot.matrix&#39;)
+par(mar=c(5.1, 4.1, 4.1, 4.1))
+plot(trueF,border=NA)</code></pre>
+<p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>par(mar=c(5.1, 4.1, 4.1, 4.1))
+plot(computedF,border=NA)</code></pre>
+<p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-15-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Another sanity check is that the factors should be independent. Below we visualize the true and computed covariance matrices.</p>
+<pre class="r"><code>par(mar=c(5.1, 4.1, 4.1, 4.1))
+plot(cov(trueF))</code></pre>
+<p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>par(mar=c(5.1, 4.1, 4.1, 4.1))
+plot(cov(computedF))</code></pre>
+<p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-16-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>It looks like they’re still fairly correlated, unfortunately. But it wouldn’t be hard to get <span class="math inline">\(F\)</span> from <span class="math inline">\(L\)</span> in other ways. I’m just not sure why flash doesn’t compute it itself.</p>
+</div>
+<div id="trying-with-the-covariance-matrix-instead" class="section level2">
+<h2>Trying with the covariance matrix instead</h2>
+<p>This didn’t seem to work very well. It throws errors about standard errors being zero in some cases, and in other cases it doesn’t detect the tree structure very well.</p>
+<pre class="r"><code># TODO throws error abt standard errors
+# res &lt;- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-2,cov=TRUE)
+# plot_nodetree_loadings(nodetree,res$L.pm)
+
+# TODO throws error abt standard errors
+# res &lt;- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-1,cov=TRUE)
+# plot_nodetree_loadings(nodetree,res$L.pm)
+
+#performs poorly; doesn&#39;t separate parents from children very well
+res &lt;- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-3,cov=TRUE)
+plot_nodetree_loadings(nodetree,res$L.pm)</code></pre>
+<p><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/lfsr_algorithm.Rmd/unnamed-chunk-17-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># TODO throws error abt standard errors
+#performs poorly still
+# res &lt;- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-4,cov=TRUE)
+# plot_nodetree_loadings(nodetree,res$L.pm)</code></pre>
+</div>
+<div id="using-an-exponential-prior" class="section level2">
+<h2>Using an exponential prior</h2>
+<p>Instead of a point-exponential prior</p>
+<p>TODO</p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -1349,18 +1387,18 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] dequer_2.0-1        dyno_0.1.2          dynwrap_1.2.2      
- [4] dynplot_1.1.2       dynmethods_1.0.5    dynguidelines_1.0.1
- [7] dynfeature_1.0.0    fields_13.3         viridis_0.6.2      
-[10] viridisLite_0.4.0   spam_2.8-0          ebnm_0.1-54        
-[13] forcats_0.5.1       stringr_1.4.0       purrr_0.3.4        
-[16] readr_2.1.1         tidyr_1.1.4         tibble_3.1.6       
-[19] ggplot2_3.3.5       tidyverse_1.3.1     flashier_0.2.8     
-[22] dplyr_1.0.7         scales_1.1.1        RColorBrewer_1.1-2 
-[25] workflowr_1.7.0    
+ [1] plot.matrix_1.6.1   dequer_2.0-1        dyno_0.1.2         
+ [4] dynwrap_1.2.2       dynplot_1.1.2       dynmethods_1.0.5   
+ [7] dynguidelines_1.0.1 dynfeature_1.0.0    fields_13.3        
+[10] viridis_0.6.2       viridisLite_0.4.0   spam_2.8-0         
+[13] ebnm_0.1-59         forcats_0.5.1       stringr_1.4.0      
+[16] purrr_0.3.4         readr_2.1.1         tidyr_1.1.4        
+[19] tibble_3.1.6        ggplot2_3.3.5       tidyverse_1.3.1    
+[22] flashier_0.2.22     magrittr_2.0.2      dplyr_1.0.8        
+[25] scales_1.1.1        RColorBrewer_1.1-2  workflowr_1.7.0    
 
 loaded via a namespace (and not attached):
-  [1] colorspace_2.0-2   ellipsis_0.3.2     rprojroot_2.0.2   
+  [1] colorspace_2.0-3   ellipsis_0.3.2     rprojroot_2.0.2   
   [4] dynparam_1.0.2     fs_1.5.2           rstudioapi_0.13   
   [7] farver_2.1.0       graphlayouts_0.8.0 remotes_2.4.2     
  [10] dynutils_1.0.9     ggrepel_0.9.1      fansi_1.0.2       
@@ -1370,29 +1408,29 @@ loaded via a namespace (and not attached):
  [22] ashr_2.2-47        dbplyr_2.1.1       ggforce_0.3.3     
  [25] shiny_1.7.1        compiler_4.1.2     httr_1.4.2        
  [28] backports_1.4.1    assertthat_0.2.1   Matrix_1.4-0      
- [31] fastmap_1.1.0      cli_3.1.0          tweenr_1.0.2      
+ [31] fastmap_1.1.0      cli_3.2.0          tweenr_1.0.2      
  [34] later_1.3.0        htmltools_0.5.2    tools_4.1.2       
  [37] igraph_1.2.11      dotCall64_1.0-1    gtable_0.3.0      
- [40] glue_1.6.0         reshape2_1.4.4     maps_3.4.0        
- [43] Rcpp_1.0.8         GA_3.2.2           cellranger_1.1.0  
- [46] jquerylib_0.1.4    vctrs_0.3.8        iterators_1.0.13  
- [49] ggraph_2.0.5       xfun_0.29          ps_1.6.0          
- [52] trust_0.1-8        rvest_1.0.2        mime_0.12         
- [55] lifecycle_1.0.1    irlba_2.3.5        MASS_7.3-55       
- [58] getPass_0.2-2      tidygraph_1.2.0    babelwhale_1.0.3  
- [61] hms_1.1.1          promises_1.2.0.1   parallel_4.1.2    
- [64] yaml_2.2.1         gridExtra_2.3      sass_0.4.0        
- [67] dyndimred_1.0.4    stringi_1.7.6      SQUAREM_2021.1    
- [70] highr_0.9          deconvolveR_1.2-1  REBayes_2.50      
- [73] desc_1.4.0         foreach_1.5.1      truncnorm_1.0-8   
- [76] horseshoe_0.2.0    rlang_0.4.12       pkgconfig_2.0.3   
- [79] evaluate_0.14      lattice_0.20-45    invgamma_1.1      
- [82] patchwork_1.1.1    processx_3.5.2     tidyselect_1.1.1  
- [85] plyr_1.8.6         magrittr_2.0.1     R6_2.5.1          
- [88] generics_0.1.1     DBI_1.1.2          pillar_1.6.4      
+ [40] glue_1.6.1         reshape2_1.4.4     maps_3.4.0        
+ [43] Rcpp_1.0.8         GA_3.2.2           softImpute_1.4-1  
+ [46] cellranger_1.1.0   jquerylib_0.1.4    vctrs_0.3.8       
+ [49] iterators_1.0.13   ggraph_2.0.5       xfun_0.29         
+ [52] ps_1.6.0           trust_0.1-8        rvest_1.0.2       
+ [55] mime_0.12          lifecycle_1.0.1    irlba_2.3.5       
+ [58] MASS_7.3-55        getPass_0.2-2      tidygraph_1.2.0   
+ [61] babelwhale_1.0.3   hms_1.1.1          promises_1.2.0.1  
+ [64] parallel_4.1.2     yaml_2.2.1         gridExtra_2.3     
+ [67] sass_0.4.0         dyndimred_1.0.4    stringi_1.7.6     
+ [70] SQUAREM_2021.1     highr_0.9          deconvolveR_1.2-1 
+ [73] REBayes_2.50       desc_1.4.0         foreach_1.5.1     
+ [76] truncnorm_1.0-8    horseshoe_0.2.0    rlang_1.0.1       
+ [79] pkgconfig_2.0.3    evaluate_0.14      lattice_0.20-45   
+ [82] invgamma_1.1       patchwork_1.1.1    processx_3.5.2    
+ [85] tidyselect_1.1.2   plyr_1.8.6         R6_2.5.1          
+ [88] generics_0.1.2     DBI_1.1.2          pillar_1.7.0      
  [91] haven_2.4.3        whisker_0.4        carrier_0.1.0     
  [94] withr_2.4.3        proxyC_0.2.4       mixsqp_0.3-43     
- [97] modelr_0.1.8       crayon_1.4.2       lmds_0.1.0        
+ [97] modelr_0.1.8       crayon_1.5.0       lmds_0.1.0        
 [100] utf8_1.2.2         tzdb_0.2.0         rmarkdown_2.11    
 [103] grid_4.1.2         readxl_1.3.1       callr_3.7.0       
 [106] git2r_0.29.0       reprex_2.0.1       digest_0.6.29     
