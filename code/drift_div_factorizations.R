@@ -49,7 +49,7 @@ add_factor <- function(dat,loading,fl,prior,Fprior,allfixed=FALSE){
           #if allfixed, is.fixed = TRUE, so entire loading is fixed to be binary
           flash.fix.factors(kset = K + 1, mode = 1L, is.fixed = TRUE) %>%
           # only backfit the most recently added factor
-          flash.backfit(kset = K + 1)
+          flash.backfit(kset = K + 1, extrapolate = FALSE)
   }
   else {
       next_fl <- fl %>%
@@ -60,7 +60,7 @@ add_factor <- function(dat,loading,fl,prior,Fprior,allfixed=FALSE){
           # if not allfixed, only zero loadings are set to zero
           flash.fix.factors(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %>%
           # only backfit the most recently added factor
-          flash.backfit(kset = K + 1)
+          flash.backfit(kset = K + 1, extrapolate = FALSE)
   }
   return(next_fl)
 }
@@ -84,7 +84,7 @@ get_divergence_factor <- function(dat,loading,fl,divprior,Fprior){
       ebnm.fn = c(divprior,Fprior)
     ) %>%
     flash.fix.factors(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %>%
-    flash.backfit(kset = K + 1)
+    flash.backfit(kset = K + 1, extrapolate = FALSE)
   return(next_fl$L.pm[,K+1])
 }
 
@@ -122,7 +122,7 @@ drift_fit <- function(dat,
     #only fixing the first factor, and the we want to fix row loadings, so mode=1
     flash.fix.factors(kset = 1, mode = 1) %>%
     #backfit to match the priors
-    flash.backfit() %>%
+    flash.backfit(extrapolate = FALSE) %>%
     #add initial divergence loading
     flash.add.greedy(
       Kmax = 1,
@@ -214,7 +214,7 @@ div_fit <- function(dat,
     #only fixing the first factor, and the we want to fix row loadings, so mode=1
     flash.fix.factors(kset = 1, mode = 1) %>%
     #backfit to match the priors
-    flash.backfit() %>%
+    flash.backfit(extrapolate = FALSE) %>%
     #add initial divergence loading
     flash.add.greedy(
       Kmax = 1,

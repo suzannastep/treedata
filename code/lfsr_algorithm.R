@@ -29,7 +29,7 @@ get_divergence_factor_lfsr <- function(dat,lfsr_tol,loading,fl,divprior,Fprior){
             ebnm.fn = c(divprior,Fprior)
         ) %>%
         flash.fix.factors(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %>%
-        flash.backfit(kset = K + 1)
+        flash.backfit(kset = K + 1,extrapolate=FALSE)
     loading <- next_fl$L.pm[,K+1]
     lfsr <- next_fl$L.lfsr[,K+1]
     loading[lfsr > lfsr_tol] <- 0
