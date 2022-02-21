@@ -116,8 +116,16 @@ plot_continuoustree <- function(tree,color=tree$labels,palette=c("#0000D2","#D2D
 #' @param tree tree object, like the output of form_tree_from_file
 #' @param loading posterior mean of loadings, used to color the tree
 #' @param labels labels for the data used to color data in second plot
-plot_nodetree_loadings <- function(tree,loadings,labels=tree$labels){
+plot_nodetree_loadings <- function(tree,loadings,labels=tree$labels,leavesonly=FALSE){
     numloadings <- dim(loadings)[2]
+    #if leaf only data, fill the rest with zeros
+    if (leavesonly){
+        new_loadings = matrix(0,nrow=dim(nodetree$matrix)[1],ncol=numloadings)
+        for (loadingnum in 1:numloadings){
+            new_loadings[tree$IsLeaf,loadingnum] = loadings[,loadingnum]
+        }
+        loadings = new_loadings
+    }
     #first plot
     ## dim reduction colored according to loading
     par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))
@@ -133,8 +141,6 @@ plot_nodetree_loadings <- function(tree,loadings,labels=tree$labels){
     newcolor <- labels/max(abs(labels)) / 2 + 0.5
     ## use pal and alpha to get rgb value for color
     newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
-    ## make colored scatter plot
-    plot(tree$dimred,col=newcolor,pch=20)
     ## values of the loadings
     par(mfrow=c(ceiling(numloadings/3), 3),mar=c(1,1,1,1))
     for (loadingnum in 1:numloadings){
