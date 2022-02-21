@@ -38,7 +38,8 @@ get_divergence_factor_lfsr <- function(dat,lfsr_tol,loading,fl,divprior,Fprior){
 
 #' Fits a drift factorization to the data and returns the associated flashier object
 #' 
-#' @param tree tree object; output of form_tree_from_file. 
+#' @param dat data matrix. rows are samples, columns are features
+#' @param covar If true, fits to the covariance instead of the data matrix
 #' @param divprior prior for intermediate divergence loadings. Defaults to a point Laplace prior.
 #' @param driftprior prior for drift loadings. Defaults to a point exponential prior.
 #' @param Fprior prior for the factors. Defaults to a normal prior.
@@ -46,15 +47,23 @@ get_divergence_factor_lfsr <- function(dat,lfsr_tol,loading,fl,divprior,Fprior){
 #' @param lfsr_tol Tolerance for local false sign rate
 #' @param min_pve If the pve for a factor is less than this tolerance, the factor is rejected
 #' @param verbose.lvl The level of verbosity of the function
-lfsr_algorithm <- function(tree,
+#' @param labels Ground truth data labels for testing purposes
+lfsr_algorithm <- function(dat,
+                      covar=FALSE,
                       divprior = prior.point.laplace(),
                       driftprior = as.prior(ebnm.fn = ebnm_point_exponential,sign=1),
                       Fprior = prior.normal(),
                       Kmax = Inf,
                       lfsr_tol = 1e-3,
                       min_pve = 0,
-                      verbose.lvl = 0) {
-    dat <- tree$matrix
+                      verbose.lvl = 0,
+                      labels=NULL) {
+    if (covar){
+        dat <- cov(t(dat))
+    }
+    else{
+        dat <- dat
+    }
     #the first loading will be the all-ones vector
     ones <- matrix(1, nrow = nrow(dat), ncol = 1)
     #first factor will be least sq soln: argmin_f ||Y - ones t(f)||_F^2
