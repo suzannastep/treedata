@@ -136,7 +136,7 @@ plot_nodetree_loadings <- function(tree,loadings,labels=tree$labels,leavesonly=F
     }
     #second plot
     ## create color palette function
-    pal <- colorRamp(palette)
+    pal <- colorRamp(1:(length(labels)))
     ## rescale color to be between 0 and 1, and 0.5 being the "zero" point
     newcolor <- labels/max(abs(labels)) / 2 + 0.5
     ## use pal and alpha to get rgb value for color
