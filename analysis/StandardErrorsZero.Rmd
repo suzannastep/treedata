@@ -26,6 +26,7 @@ tree <- vector(mode="list")
 tree$csv <- read.csv('data/NodeTrees/NodeTree3/NodeTree3.csv',row.names=1)
 tree$matrix <- tree$csv %>%
     select(Raw0:Raw499)
+tree$labels <- tree$csv$Labels
 tree$matrix <- as.matrix(tree$matrix)
 tree$dimred <- tree$csv %>%
         select(tsne0:tsne1)
@@ -246,5 +247,10 @@ Finally, running the data on this algorithm gives an error. This is set to `eval
 
 ```{r,eval=FALSE}
 res <- lfsr_algorithm(tree,lfsr_tol=1e-2,cov=TRUE,verbose=1)
-
 ```
+```{r}
+source("code/fileIO_plotting.R")
+plot_nodetree_loadings(tree,
+                       loadings=res$L.pm)
+```
+
