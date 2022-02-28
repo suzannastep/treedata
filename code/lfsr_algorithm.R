@@ -58,7 +58,8 @@ lfsr_algorithm <- function(dat,
                       min_pve = 0,
                       verbose.lvl = 0,
                       labels=NULL,
-                      allfixed=FALSE) {
+                      allfixed=FALSE,
+                      S=1e-12) {
     if (covar){
         dat <- cov(t(dat))
     }
@@ -71,7 +72,8 @@ lfsr_algorithm <- function(dat,
     ls.soln <- t(crossprod(ones, dat)/nrow(dat))
 
     #create flash object with initial drift loading and initial divergence loading
-    fl <- flash.init(dat) %>%
+    if (verbose.lvl > 0) {cat("S =",S,"\n")}
+    fl <- flash.init(dat,S=S) %>%
         flash.set.verbose(verbose.lvl) %>%
         #initialize L to be the ones vector, and F to be the least squares solution
         flash.init.factors(list(ones, ls.soln),
