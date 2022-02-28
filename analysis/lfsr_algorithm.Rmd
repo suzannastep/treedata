@@ -83,11 +83,14 @@ It definitely finds the correct structure, but one could picture it may not be e
 
 ## Force binary loadings as you go?
 
-Alternatively, you could force the loadings to be binary as you go. This results in roughly the same thing, but perhaps with slighly better results. I changed the functionality of the `add_factor` function to allow for this.
+Alternatively, you could force the loadings to be binary as you go. This results in roughly the same thing, but perhaps with slightly better results. I changed the functionality of the `add_factor` function to allow for this. The parameter `allfixed=TRUE` makes it so that all of the values are fixed as you go, not just the zero values in the loadings. In effect, this means that the loadings are forced to be binary as you go.
 
 ```{r, eval=FALSE}
-#TODO THROWS SE error
-nodetree$trajectory$lfsr_drift_force_binary <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,allfixed=TRUE)
+# TODO ERROR
+nodetree$trajectory$lfsr_drift_force_binary <- lfsr_algorithm(dat=nodetree$matrix,
+                                                              labels=nodetree$labels,
+                                                              allfixed=TRUE,
+                                                              verbose=1)
 plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_drift_force_binary$L.pm)
 ```
 
@@ -96,53 +99,61 @@ plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_drift_force_binary$L.pm
 Backfitting after enforcing the binary structure doesn't seem to change anything.
 
 ```{r, eval=FALSE}
+# TODO error bc cell above doesn't work
 nodetree$trajectory$lfsr_drift_force_binary_backfit <- flash.backfit(nodetree$trajectory$lfsr_drift_force_binary)
 plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_drift_force_binary_backfit$L.pm)
 ```
 
-## Sometimes gives error when all the standard deviations are zero
+## Trying Larger LFSR Tolerance Values
 
-Unfortunately, I wasn't able to run this algorithm on certain datasets because I kept getting an error about standard deviations being zero. This happened with the nodetree dataset seen above with `lfsr_tol=1e-2` instead of `lfsr_tol=1e-3`, and with the`continuoustree` dataset. However, changing to the internally enforced binary algorithm fixed this.
+By default, I used `lfsr_tol=1e-3`, but this may be unnecessarily stringent. Below, I try using `lfsr_tol = 1e-2`. (This code doesn't work unless `S=1e-12` is used.)
 
-```{r,eval=FALSE}
-#running this code gives an error
-res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-2,verbose=1)
+```{r,eval=TRUE}
+#not binary
+res <- lfsr_algorithm(dat=nodetree$matrix,
+                      labels=nodetree$labels,
+                      lfsr_tol=1e-2)
+plot_nodetree_loadings(nodetree,res$L.pm)
+#binary fixed as you go
+res <- lfsr_algorithm(dat=nodetree$matrix,
+                      labels=nodetree$labels,
+                      lfsr_tol=1e-2,
+                      allfixed=TRUE)
 plot_nodetree_loadings(nodetree,res$L.pm)
 ```
 
-## Some interesting results on certain datasets
+## Comparison with various `lfsr_tol` on a simple dataset
 
-Here are some interesting results using the enforced binary structure.
-
-First is a noisy dataset. We see in these results that with a smaller LFSR tolerance, it detects less structure, as one might anticipate. In some ways the local false sign rate allows us to specify how sure we want to be that we're really finding tree structure. UPDATE: with new flashier package, it doesn't find the additional structure with higher `lfsr_tol`.
+Here are some interesting results with the binary structure enforced as you go on a fairly noisy dataset. We see in these results that with a smaller LFSR tolerance, it detects less structure. For example, with `lfsr_tol=1e-2`, there are only three factors. With a larger LFSR tolerance of `lfsr_tol=1e-1`, it detects more strucutre, although not 100% perfectly. We see that it finds 9 factors, although factors 4 & 5, 6 & 9, and 7 & 8 are factors ideally would be combined into one.
 
 ```{r}
-nodetree <- form_tree_from_file('data/NodeTrees/NodeTree3/NodeTree3.csv')
-#run method with lfsr 1e-2
-# TODO raises standard errors must be positive and nonzero error -- why?
-res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-1,verbose=1)
+nodetree3 <- form_tree_from_file('data/NodeTrees/NodeTree3/NodeTree3.csv')
+#lfsr 1e-1, binary
+res <- lfsr_algorithm(dat=nodetree3$matrix,
+                      labels=nodetree3$labels,
+                      lfsr_tol=1e-1,
+                      allfixed=TRUE)
 plot_nodetree_loadings(nodetree,res$L.pm)
-#run method with lfsr 1e-2
-res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-2)
-plot_nodetree_loadings(nodetree,res$L.pm)
-#run method with lfsr 1e-3
-res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-3)
-plot_nodetree_loadings(nodetree,res$L.pm)
+#lfsr 1e-2, binary
+res <- lfsr_algorithm(dat=nodetree3$matrix,
+                      labels=nodetree3$labels,
+                      lfsr_tol=1e-2,
+                      allfixed=TRUE)
+plot_nodetree_loadings(nodetree3,res$L.pm)
 ```
 
-Also, a very simple tree, which it recovers very well.
+# A very simple tree
+
+It recovers this simple tree with low noise levels fairly well, although it somehow splits the last node up into more levels of complexity than necessary. NOTE: I think this didn't happen with the old versions of `flashier`.
 
 ```{r}
-nodetree <- form_tree_from_file('data/NodeTrees/NodeTree1/NodeTree1.csv')
-
-#recreate colormap for this nodetree's labels
-color <- nodetree$labels
-pal <- colorRamp(palette)
-newcolor <- color/max(abs(color)) / 2 + 0.5
-newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
+nodetree1 <- form_tree_from_file('data/NodeTrees/NodeTree1/NodeTree1.csv')
 #run method
-res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-3)
-plot_nodetree_loadings(nodetree,res$L.pm)
+res <- lfsr_algorithm(dat=nodetree1$matrix,
+                      labels=nodetree1$labels,
+                      lfsr_tol=1e-3,
+                      allfixed=TRUE)
+plot_nodetree_loadings(nodetree1,res$L.pm)
 ```
 
 ## Just using leaf data
@@ -150,31 +161,30 @@ plot_nodetree_loadings(nodetree,res$L.pm)
 Here is the algorithm run on a data set with just leaf data. Unfortunately, it only added one factor. I this is beacuse the LFSR's are numerically close to zero.
 
 ```{r}
-nodetree <- form_tree_from_file('data/NodeTrees/NodeTree1/NodeTree1.csv')
-nodetree$IsLeaf = nodetree$csv$IsLeaf=="True"
+nodetree1$IsLeaf = nodetree1$csv$IsLeaf=="True"
 #run method on leaf data
-res_lfsr <- lfsr_algorithm(dat=nodetree$matrix[nodetree$IsLeaf,],
-                      labels=nodetree$labels[nodetree$IsLeaf],
+res_lfsr <- lfsr_algorithm(dat=nodetree1$matrix[nodetree1$IsLeaf,],
+                      labels=nodetree1$labels[nodetree1$IsLeaf],
                       lfsr_tol=1e-3)
 print(max(res_lfsr$L.lfsr,na.rm = TRUE))
 #try divergence fit?
-res_div <- div_fit(dat=nodetree$matrix[nodetree$IsLeaf,],
-                      labels=nodetree$labels[nodetree$IsLeaf])
-plot_nodetree_loadings(nodetree,res_div$L.pm) #works great
+res_div <- div_fit(dat=nodetree1$matrix[nodetree1$IsLeaf,],
+                      labels=nodetree1$labels[nodetree1$IsLeaf])
+plot_nodetree_loadings(nodetree1,res_div$L.pm) #works great
 print(max(res_div$L.lfsr,na.rm = TRUE))
 #try drift fit?
-res_drift <- drift_fit(dat=nodetree$matrix[nodetree$IsLeaf,],
-                      labels=nodetree$labels[nodetree$IsLeaf])
-plot_nodetree_loadings(nodetree,res_drift$L.pm) #works great
+res_drift <- drift_fit(dat=nodetree1$matrix[nodetree1$IsLeaf,],
+                      labels=nodetree1$labels[nodetree1$IsLeaf])
+plot_nodetree_loadings(nodetree1,res_drift$L.pm) #works great
 print(max(res_drift$L.lfsr,na.rm = TRUE))
 #run method on leaf data with tiny lfsr tol
-res_lfsr <- lfsr_algorithm(dat=nodetree$matrix[nodetree$IsLeaf,],
-                      labels=nodetree$labels[nodetree$IsLeaf],
+res_lfsr <- lfsr_algorithm(dat=nodetree1$matrix[nodetree1$IsLeaf,],
+                      labels=nodetree1$labels[nodetree1$IsLeaf],
                       lfsr_tol=1e-10)
 # TODO I think all the lfsrs are nans bc they're all fixed.
 # why is this a non issue otherwise?
 print(max(res_lfsr$L.lfsr,na.rm = TRUE)) #all lfsrs are nans...
-plot_nodetree_loadings(nodetree,res_lfsr$L.pm) #works great
+plot_nodetree_loadings(nodetree1,res_lfsr$L.pm) #works great
 ```
 
 ## Does setting L to be binary give the "correct" F?
@@ -185,10 +195,10 @@ Lets check by finding the true F and comparing against the computed F.
 #get computed F
 computedF <- res$F.pm
 #get true F
-labels <- unique(nodetree$labels)
-trueF <- matrix(nrow=dim(nodetree$matrix)[2],ncol=length(labels))
+labels <- unique(nodetree1$labels)
+trueF <- matrix(nrow=dim(nodetree1$matrix)[2],ncol=length(labels))
 ## first factor is the mean of the root node
-trueF[,1] <- colMeans(nodetree$matrix[nodetree$labels == 0,])
+trueF[,1] <- colMeans(nodetree1$matrix[nodetree1$labels == 0,])
 ## get the nodes that are parents
 parents <- labels[1:(length(labels)/2)]
 ## initialize index of child and num children per node
@@ -196,10 +206,10 @@ childidx <- 2
 children_per_node <- 2
 ## differences are the factors
 for (parent in parents){
-    parent_mean <- colMeans(nodetree$matrix[nodetree$labels == parent,])
+    parent_mean <- colMeans(nodetree1$matrix[nodetree1$labels == parent,])
     for (childnum in 1:children_per_node){
         child <- labels[childidx]
-        child_mean <- colMeans(nodetree$matrix[nodetree$labels == child,])
+        child_mean <- colMeans(nodetree1$matrix[nodetree1$labels == child,])
         factor <- parent_mean - child_mean
         trueF[,childidx] <- factor
         childidx <- childidx + 1
@@ -207,7 +217,7 @@ for (parent in parents){
 }
 ```
 
-First, we should compute the relative error in F. I first rescale both matrices to account for an arbitrary scaling factor.
+We should compute the relative error in F. I first rescale both matrices to account for an arbitrary scaling factor.
 
 ```{r}
 maxabs <- function(data){
@@ -242,25 +252,18 @@ This didn't seem to work very well. It throws errors about standard errors being
 
 ```{r}
 # TODO throws error abt standard errors
-# res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-2,cov=TRUE)
-# plot_nodetree_loadings(nodetree,res$L.pm)
+res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-2,cov=TRUE)
+plot_nodetree_loadings(nodetree,res$L.pm)
 
 # TODO throws error abt standard errors
-# res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-1,cov=TRUE)
-# plot_nodetree_loadings(nodetree,res$L.pm)
+res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-1,cov=TRUE)
+plot_nodetree_loadings(nodetree,res$L.pm)
 
 #performs poorly; doesn't separate parents from children very well
 res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-3,cov=TRUE)
 plot_nodetree_loadings(nodetree,res$L.pm)
-#performs poorly still
+# TODO throws error abt standard errors
+# performs poorly still
 res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-4,cov=TRUE)
 plot_nodetree_loadings(nodetree,res$L.pm)
-```
-
-## Using an exponential prior
-
-TODO
-
-```{r}
-
 ```
