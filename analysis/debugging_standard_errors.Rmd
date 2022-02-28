@@ -1,0 +1,69 @@
+---
+title: "Tree Algorithm using LFSR"
+author: "Sue Parkinson"
+date: "2022-02-01"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Introduction
+
+First, I load in the code from the `code/fileIO_plotting.R` and `code/lfsr_algorithm.R`.
+
+```{r message=FALSE}
+source("code/fileIO_plotting.R")
+source("code/lfsr_algorithm.R")
+devtools::load_all("../flashier")
+devtools::load_all("../ebnm")
+```
+
+```{r, eval=FALSE}
+# nodetree <- form_tree_from_file('data/NodeTrees/NodeTree1/NodeTree1.csv')
+# nodetree <- form_tree_from_file('data/NodeTrees/NodeTree2/NodeTree2.csv')
+# nodetree <- form_tree_from_file('data/NodeTrees/NodeTree3/NodeTree3.csv')
+nodetree <- form_tree_from_file('data/NodeTrees/NodeTree4/NodeTree4.csv')
+```
+
+```{r, eval=FALSE}
+# TODO ERROR
+nodetree$trajectory$lfsr_drift_force_binary <- lfsr_algorithm(dat=nodetree$matrix,
+                                                              labels=nodetree$labels,
+                                                              allfixed=TRUE,
+                                                              verbose=1)
+# plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_drift_force_binary$L.pm)
+```
+
+```{r, eval=FALSE}
+# TODO error bc cell above doesn't work
+# nodetree$trajectory$lfsr_drift_force_binary_backfit <- flash.backfit(nodetree$trajectory$lfsr_drift_force_binary)
+# plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_drift_force_binary_backfit$L.pm)
+```
+
+```{r}
+# TODO throws error abt standard errors
+res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-2,cov=TRUE,verbose=1)
+# plot_nodetree_loadings(nodetree,res$L.pm)
+```
+
+
+```{r}
+# TODO throws error abt standard errors
+res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-1,cov=TRUE,verbose=1)
+# plot_nodetree_loadings(nodetree,res$L.pm)
+```
+
+
+```{r}
+#performs poorly; doesn't separate parents from children very well
+res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-3,cov=TRUE,verbose=1)
+# plot_nodetree_loadings(nodetree,res$L.pm)
+```
+
+
+```{r}
+# TODO throws error abt standard errors
+# performs poorly still
+res <- lfsr_algorithm(dat=nodetree$matrix,labels=nodetree$labels,lfsr_tol=1e-4,cov=TRUE,verbose=1)
+# plot_nodetree_loadings(nodetree,res$L.pm)
+```
