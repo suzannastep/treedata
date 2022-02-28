@@ -143,8 +143,8 @@ drift_fit <- function(dat,
     #split into loadings for positive and negative parts (1-0 indicator vectors)
     splus <- matrix(1L * (current_divergence > eps), ncol = 1)
     if (sum(splus) > 0) {
-      if ((verbose.lvl > 0)&(is.null(labels))) {
-        cat(get_sums_by_label(labels,splus))
+      if ((verbose.lvl > 0)&(!is.null(labels))) {
+        print(get_sums_by_label(labels,splus))
       }
       #add drift loading
       next_fl <- add_factor(dat,splus,fl,driftprior,Fprior)
@@ -158,8 +158,8 @@ drift_fit <- function(dat,
     }
     sminus <- matrix(1L * (current_divergence < -eps), ncol = 1)
     if (sum(sminus) > 0 && K < Kmax) {
-      if ((verbose.lvl > 0)&(is.null(labels))) {
-        cat(get_sums_by_label(labels,sminus))
+      if ((verbose.lvl > 0)&(!is.null(labels))) {
+        print(get_sums_by_label(labels,sminus))
       }
       #add drift loading
       next_fl <- add_factor(dat,sminus,fl,driftprior,Fprior)
@@ -235,8 +235,8 @@ div_fit <- function(dat,
     # TODO I think this is why the divergence factorization plots look weird?
     snonzero <- matrix(1L * (abs(current_divergence) > eps), ncol = 1)
     if (sum(snonzero) > 0 && (K != 2)) {
-      if ((verbose.lvl > 0)&(is.null(labels))) {
-        cat(get_sums_by_label(labels,snonzero))
+      if ((verbose.lvl > 0)&(!is.null(labels))) {
+        print(get_sums_by_label(labels,snonzero))
       }
       #add drift loading
       next_fl <- add_factor(dat,snonzero,fl,driftprior,Fprior)

@@ -95,7 +95,7 @@ lfsr_algorithm <- function(dat,
         #split into positive and negative parts
         splus <- matrix(1L * (current_divergence > 0), ncol = 1)
         if (sum(splus) > 0 && fl$n.factors < Kmax) {
-            if ((verbose.lvl > 0)&(is.null(labels))) {cat(get_sums_by_label(labels,splus))}
+            if ((verbose.lvl > 0)&(!is.null(labels))) {print(get_sums_by_label(labels,splus))}
             #add drift loading
             next_fl <- add_factor(dat,splus,fl,driftprior,Fprior,allfixed=allfixed)
             if (next_fl$pve[next_fl$n.factors] > min_pve){
@@ -107,7 +107,7 @@ lfsr_algorithm <- function(dat,
         }
         sminus <- matrix(1L * (current_divergence < 0), ncol = 1)
         if (sum(sminus) > 0 && fl$n.factors < Kmax) {
-            if ((verbose.lvl > 0)&(is.null(labels))) {cat(get_sums_by_label(labels,sminus))}
+            if ((verbose.lvl > 0)&(!is.null(labels))) {print(get_sums_by_label(labels,sminus))}
             #add drift loading
             next_fl <- add_factor(dat,sminus,fl,driftprior,Fprior,allfixed=allfixed)
             if (next_fl$pve[next_fl$n.factors] > min_pve){
