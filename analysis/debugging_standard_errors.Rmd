@@ -16,6 +16,7 @@ source("code/fileIO_plotting.R")
 source("code/lfsr_algorithm.R")
 devtools::load_all("../flashier")
 devtools::load_all("../ebnm")
+devtools::load_all("../ashr")
 ```
 
 ```{r, eval=FALSE}
@@ -30,7 +31,7 @@ nodetree <- form_tree_from_file('data/NodeTrees/NodeTree4/NodeTree4.csv')
 nodetree$trajectory$lfsr_drift_force_binary <- lfsr_algorithm(dat=nodetree$matrix,
                                                               labels=nodetree$labels,
                                                               allfixed=TRUE,
-                                                              verbose=1)
+                                                              verbose=0)
 # plot_nodetree_loadings(nodetree,nodetree$trajectory$lfsr_drift_force_binary$L.pm)
 ```
 
