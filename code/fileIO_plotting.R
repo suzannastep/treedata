@@ -2,6 +2,10 @@
 # and plotting the dimnensionality reduced data with certain colors
 library(RColorBrewer)
 library(scales)
+library(dplyr)
+library(tidyverse)
+library(dyno)
+library(fields)
 
 #' Forms a tree object from a csv file
 #'
@@ -21,6 +25,7 @@ form_tree_from_file <- function(filename){
     tree$matrix <- tree$csv %>%
         select(Raw0:Raw499)
     tree$matrix <- as.matrix(tree$matrix)
+    tree$cov = cov(t(tree$matrix))
     tree$dimred <- tree$csv %>%
         select(tsne0:tsne1)
     #As input, dynwrap requires raw counts and normalized (log2) expression data.
@@ -35,6 +40,9 @@ form_tree_from_file <- function(filename){
         start_id = "Row0"
     )
     tree$trajectory <- vector(mode="list")
+    tree$isleaf <- tree$csv$IsLeaf == "True"
+    tree$leafmatrix = tree$matrix[tree$isleaf,]
+    tree$leafcov = cov(t(tree$leafmatrix))
     return(tree)
 }
 
@@ -43,7 +51,8 @@ form_tree_from_file <- function(filename){
 #' @param tree tree object, like the output of form_tree_from_file
 #' @param color vector of colors for the data points
 #' @param palette color pallete to use for the plot
-plot_nodetree <- function(tree,color=1+tree$labels,palette=c("#0000D2","#D2D2D2","#D20000")){
+#' @param leaf should the plot include
+plot_nodetree <- function(tree,color=1+tree$labels,palette=c("#0000D2","#D2D2D2","#D20000"),leaf=FALSE){
     #create colormap
     ## create color palette function
     pal <- colorRamp(palette)
@@ -52,7 +61,12 @@ plot_nodetree <- function(tree,color=1+tree$labels,palette=c("#0000D2","#D2D2D2"
     ## use pal and alpha to get rgb value for color
     newcolor <- alpha(rgb(pal(newcolor)/255),0.4)
     ## make colored scatter plot
-    plot(tree$dimred,col=newcolor,pch=20)
+    if (leaf){
+        plot(tree$dimred[tree$isleaf,],col=newcolor,pch=20)
+    }
+    else{
+        plot(tree$dimred,col=newcolor,pch=20)
+    }
 
     # draw arrows between parents and children
     ## get all the different labels of the nodes
@@ -71,6 +85,10 @@ plot_nodetree <- function(tree,color=1+tree$labels,palette=c("#0000D2","#D2D2D2"
                    mean(tree$dimred$tsne0[tree$labels == child]),
                    mean(tree$dimred$tsne1[tree$labels == child]),
                    length=0.05)
+            text(mean(tree$dimred$tsne0[tree$labels == child]), 
+                 mean(tree$dimred$tsne1[tree$labels == child]),
+                 child,
+                 cex=1.5)
             childidx <- childidx + 1
         }
     }

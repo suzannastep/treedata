@@ -1,0 +1,45 @@
+---
+title: "Debugging Truncated Normals in ASHR"
+author: "Sue Parkinson"
+date: "3/2/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# load in code
+
+```{r}
+devtools::load_all("../ashr")
+```
+
+# example 1
+
+```{r}
+ex1 = readRDS("negative_second_moments1.rds")
+my_e2truncnormVECTORIZED(ex1$a,ex1$b,ex1$mean,ex1$sd)
+```
+
+#example 2
+
+```{r}
+ex2 = readRDS("negative_second_moments2.rds")
+my_e2truncnorm(ex2$a,ex2$b,ex2$mean,ex2$sd)
+```
+
+#example 3
+
+```{r}
+my_e2truncnorm(0,Inf, -54793.7, 3)
+```
+
+#un-example 4
+
+sensitive to the mean
+
+```{r}
+my_e2truncnorm(0,Inf, -55000, 3)
+```
+

@@ -19,10 +19,12 @@ source("code/drift_div_factorizations.R")
 #' @param Fprior prior for the factors. Defaults to a normal prior.
 #' @returns the new posterior loading for the additional divergence factor
 get_divergence_factor_lfsr <- function(dat,lfsr_tol,loading,fl,divprior,Fprior){
+    #print("entering get divergence lfsr")
     K <- fl$n.factors
     #initializes factor to the least squares solution
     ls.soln  <- t(crossprod(loading,  dat - fitted(fl))/sum(loading))
     EF <- list(loading, ls.soln)
+    #print("entering flash")
     next_fl <- fl %>%
         flash.init.factors(
             EF,
@@ -30,9 +32,11 @@ get_divergence_factor_lfsr <- function(dat,lfsr_tol,loading,fl,divprior,Fprior){
         ) %>%
         flash.fix.factors(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %>%
         flash.backfit(kset = K + 1,extrapolate=FALSE)
+    #print("entering flash")
     loading <- next_fl$L.pm[,K+1]
     lfsr <- next_fl$L.lfsr[,K+1]
     loading[lfsr > lfsr_tol] <- 0
+    #print("leaving get divergence lfsr")
     return(loading)
 }
 

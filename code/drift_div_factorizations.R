@@ -35,6 +35,7 @@ get_sums_by_label <- function(labels,loading){
 #' @returns a new flash object with a new factor such that the associated loading matches the
 #' sparsity pattern from loading
 add_factor <- function(dat,loading,fl,prior,Fprior,allfixed=FALSE){
+  #print("entering add factor")
   K <- fl$n.factors
   #initializes factor to the least squares solution
   ls.soln  <- t(crossprod(loading,  dat - fitted(fl))/sum(loading))
@@ -62,6 +63,7 @@ add_factor <- function(dat,loading,fl,prior,Fprior,allfixed=FALSE){
           # only backfit the most recently added factor
           flash.backfit(kset = K + 1, extrapolate = FALSE)
   }
+  #print("leaving add factor")
   return(next_fl)
 }
 
@@ -74,6 +76,7 @@ add_factor <- function(dat,loading,fl,prior,Fprior,allfixed=FALSE){
 #' @param Fprior prior for the factors. Defaults to a normal prior.
 #' @returns the new posterior loading for the additional divergence factor
 get_divergence_factor <- function(dat,loading,fl,divprior,Fprior){
+  #print("entering get divergence factor")
   K <- fl$n.factors
   #initializes factor to the least squares solution
   ls.soln  <- t(crossprod(loading,  dat - fitted(fl))/sum(loading))
@@ -85,6 +88,7 @@ get_divergence_factor <- function(dat,loading,fl,divprior,Fprior){
     ) %>%
     flash.fix.factors(kset = K + 1, mode = 1L, is.fixed = (loading == 0)) %>%
     flash.backfit(kset = K + 1, extrapolate = FALSE)
+  #print("leaving get divergence factor")
   return(next_fl$L.pm[,K+1])
 }
 

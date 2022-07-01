@@ -1,0 +1,64 @@
+---
+title: "Recursive Partitioning"
+author: "Sue Parkinson"
+date: "3/28/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Inroduction
+
+This file will experiment with using the code by Li et al. as described in ["Hierarchical Community Detection by Recursive Partitioning."](https://doi.org/10.1080/01621459.2020.1833888) and available [here](https://cran.r-project.org/web/packages/HCD/index.html).
+
+## Installing and loading package
+
+```{r,eval=FALSE}
+install.packages("HCD")
+```
+```{r,message=FALSE}
+library(HCD)
+source("code/fileIO_plotting.R")
+```
+
+## Visualizing the covariance matrix
+
+```{r}
+nodetree <- form_tree_from_file('data/NodeTrees/NodeTree1/NodeTree1.csv')
+image.plot(nodetree$leafcov)
+```
+## Trying the `HCD` method on various matrices related to the leaf nodes
+
+Doesn't work using the covariance matrix of the nodes
+
+```{r}
+res = HCD(nodetree$leafcov)
+plot_nodetree(nodetree,color=1+res$labels,palette=1:20,leaf=TRUE)
+unique(res$labels)
+```
+
+Works using reciprocal of covariance matrix with small values truncated to `1e-5`
+
+```{r}
+res = HCD(1/pmax(nodetree$leafcov,1e-5))
+plot_nodetree(nodetree,color=1+res$labels,palette=1:20,leaf=TRUE)
+paths = res$tree.path
+for (spot in 1:length(paths)){
+    paths[spot] = substr(paths[spot],1,5)
+}
+unique(paths)
+```
+
+Works with distance matrix.
+```{r}
+res = HCD(rdist(nodetree$leafmatrix))
+plot_nodetree(nodetree,color=1+res$labels,palette=1:20,leaf=TRUE)
+paths = res$tree.path
+for (spot in 1:length(paths)){
+    paths[spot] = substr(paths[spot],1,5)
+}
+unique(paths)
+```
+
